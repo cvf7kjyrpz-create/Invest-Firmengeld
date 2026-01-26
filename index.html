@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Portfolio V6</title>
+    <title>Portfolio V7</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -52,13 +52,12 @@
         
         /* Glassy Gradients */
         .gradient-gold { background: linear-gradient(135deg, rgba(234, 179, 8, 0.15), rgba(0,0,0,0)); border: 1px solid rgba(234, 179, 8, 0.2); }
-        .gradient-silver { background: linear-gradient(135deg, rgba(209, 213, 219, 0.15), rgba(0,0,0,0)); border: 1px solid rgba(209, 213, 219, 0.2); }
         .gradient-blue { background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(0,0,0,0)); border: 1px solid rgba(59, 130, 246, 0.2); }
     </style>
 </head>
-<body class="h-screen flex flex-col px-4 pt-10 pb-6 bg-black">
+<body class="h-screen flex flex-col px-4 pt-10 pb-8 bg-black">
 
-    <div class="bg-gray-900 rounded-3xl p-6 mb-5 border border-gray-800 relative overflow-hidden shadow-2xl">
+    <div class="bg-gray-900 rounded-3xl p-6 mb-5 border border-gray-800 relative overflow-hidden shadow-2xl shrink-0">
         <div id="glow-bg" class="absolute -top-10 -right-10 w-48 h-48 bg-blue-600 rounded-full blur-[80px] opacity-20 pointer-events-none transition-colors duration-700"></div>
 
         <div class="flex justify-between items-start mb-1 relative z-10">
@@ -81,7 +80,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-2 gap-3 mb-6">
+    <div class="grid grid-cols-2 gap-3 mb-5 shrink-0">
         <div class="rounded-2xl p-4 gradient-gold relative">
             <div class="flex justify-between items-start mb-2">
                 <div class="bg-yellow-500/10 p-1.5 rounded-lg text-yellow-500"><i class="ph-fill ph-coins"></i></div>
@@ -101,13 +100,13 @@
         </div>
     </div>
 
-    <div class="mb-4">
+    <div class="mb-4 shrink-0">
         <button onclick="document.getElementById('addForm').classList.toggle('hidden')" class="w-full py-3 bg-[#1c1c1e] border border-gray-800 rounded-xl text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center justify-center gap-2 active:bg-gray-800 transition-colors">
             <i class="ph-bold ph-plus"></i> Neuen Kauf eintragen
         </button>
     </div>
 
-    <div id="addForm" class="hidden bg-card p-4 rounded-xl mb-6 border border-gray-800 animate-fade-in-down">
+    <div id="addForm" class="hidden bg-card p-4 rounded-xl mb-6 border border-gray-800 animate-fade-in-down shrink-0">
         <div class="flex flex-col gap-3">
             <div class="flex gap-3">
                 <div class="w-1/3">
@@ -150,17 +149,39 @@
         </div>
     </div>
 
-    <div class="flex-1 overflow-hidden flex flex-col">
-        <div id="historyList" class="overflow-y-auto no-scrollbar pb-10 space-y-2">
+    <div class="flex-1 overflow-hidden flex flex-col mb-4">
+        <div id="historyList" class="overflow-y-auto no-scrollbar pb-4 space-y-2">
             </div>
+    </div>
+
+    <div class="mt-auto pt-4 border-t border-gray-900 shrink-0 pb-safe">
+        <div class="flex justify-between items-center px-2">
+            <span class="text-[10px] text-gray-600 font-bold uppercase tracking-widest">Datenverwaltung</span>
+            <div class="flex gap-3">
+                <button onclick="exportBackup()" class="flex items-center gap-1.5 text-xs font-bold text-gray-400 hover:text-white transition-colors">
+                    <i class="ph-bold ph-download-simple"></i> Sichern
+                </button>
+                
+                <input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(this)">
+                <button onclick="document.getElementById('importFile').click()" class="flex items-center gap-1.5 text-xs font-bold text-gray-400 hover:text-white transition-colors">
+                    <i class="ph-bold ph-upload-simple"></i> Laden
+                </button>
+            </div>
+        </div>
     </div>
 
     <input type="hidden" id="priceGold"><input type="hidden" id="priceSilver"><input type="hidden" id="priceEtf">
 
     <script>
-        // Data Init
-        let entries = JSON.parse(localStorage.getItem('portfolio_entries_v6')) || [];
-        let marketPrices = JSON.parse(localStorage.getItem('portfolio_prices_v6')) || { gold: 0, silver: 0, etf: 0, lastUpdate: 'Nie' };
+        // Data Init (Using V7 keys now)
+        let entries = JSON.parse(localStorage.getItem('portfolio_entries_v7')) || [];
+        // Migration check from V6 if V7 is empty
+        if (entries.length === 0) {
+            const v6 = JSON.parse(localStorage.getItem('portfolio_entries_v6'));
+            if(v6) { entries = v6; localStorage.setItem('portfolio_entries_v7', JSON.stringify(entries)); }
+        }
+
+        let marketPrices = JSON.parse(localStorage.getItem('portfolio_prices_v7')) || { gold: 0, silver: 0, etf: 0, lastUpdate: 'Nie' };
 
         // DOM Linking
         const elCurrentValue = document.getElementById('currentValueDisplay');
@@ -169,13 +190,11 @@
         const elPLContainer = document.getElementById('plContainer');
         const elHistory = document.getElementById('historyList');
         
-        // Split DOM
         const elMetalValue = document.getElementById('metalValueDisplay');
         const elMetalPL = document.getElementById('metalPLDisplay');
         const elEtfValue = document.getElementById('etfValueDisplay');
         const elEtfPL = document.getElementById('etfPLDisplay');
 
-        // Inputs
         const inpPriceGold = document.getElementById('priceGold');
         const inpPriceSilver = document.getElementById('priceSilver');
         const inpPriceEtf = document.getElementById('priceEtf');
@@ -188,6 +207,56 @@
         // Auto Start
         document.addEventListener("DOMContentLoaded", () => { render(); fetchLivePrices(); });
         document.addEventListener("visibilitychange", () => { if (document.visibilityState === 'visible') fetchLivePrices(); });
+
+        // --- BACKUP & RESTORE FUNCTIONS ---
+
+        function exportBackup() {
+            const data = {
+                entries: entries,
+                prices: marketPrices,
+                version: 'v7',
+                exportDate: new Date().toISOString()
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+            const downloadAnchorNode = document.createElement('a');
+            const dateStr = new Date().toISOString().split('T')[0];
+            
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "portfolio_backup_" + dateStr + ".json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        function importBackup(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    if(confirm("Warnung: Deine aktuellen Daten werden mit dem Backup überschrieben. Fortfahren?")) {
+                        if(data.entries) {
+                            entries = data.entries;
+                            localStorage.setItem('portfolio_entries_v7', JSON.stringify(entries));
+                        }
+                        if(data.prices) {
+                            marketPrices = data.prices;
+                            localStorage.setItem('portfolio_prices_v7', JSON.stringify(marketPrices));
+                        }
+                        alert("Backup erfolgreich geladen!");
+                        location.reload(); // Reload to refresh everything cleanly
+                    }
+                } catch (err) {
+                    alert("Fehler: Ungültige Backup-Datei.");
+                    console.error(err);
+                }
+            };
+            reader.readAsText(file);
+            input.value = ''; // Reset input
+        }
 
         // --- CORE FUNCTIONS ---
 
@@ -212,23 +281,20 @@
                     fetchSymbol('SXR8.DE')
                 ]);
 
-                // Update Logic
-                marketPrices.gold = goldOz / 31.1034768; // Gram price
+                marketPrices.gold = goldOz / 31.1034768; 
                 marketPrices.silver = silverOz / 31.1034768;
                 marketPrices.etf = etfPrice;
                 
                 const now = new Date();
                 marketPrices.lastUpdate = now.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
                 
-                localStorage.setItem('portfolio_prices_v6', JSON.stringify(marketPrices));
+                localStorage.setItem('portfolio_prices_v7', JSON.stringify(marketPrices));
                 
-                // Update Hidden Inputs & Render
                 inpPriceGold.value = marketPrices.gold;
                 inpPriceSilver.value = marketPrices.silver;
                 inpPriceEtf.value = marketPrices.etf;
                 render();
 
-                // Success UI
                 icon.classList.remove('ph-spinner', 'spin-slow');
                 icon.classList.add('ph-check', 'text-green-500');
                 setTimeout(() => {
@@ -261,16 +327,15 @@
                 weight: wgt || 0,
                 category: cat,
                 product: label,
-                date: date || new Date().toISOString().split('T')[0] // Default to today
+                date: date || new Date().toISOString().split('T')[0]
             });
 
-            // Sort: Newest Date First
             entries.sort((a, b) => new Date(b.date) - new Date(a.date));
 
             document.getElementById('inputAmount').value = '';
             document.getElementById('inputWeight').value = '';
             document.getElementById('inputProduct').value = '';
-            document.getElementById('addForm').classList.add('hidden'); // Close form
+            document.getElementById('addForm').classList.add('hidden');
             saveAndRender();
         }
 
@@ -282,7 +347,7 @@
         }
 
         function saveAndRender() {
-            localStorage.setItem('portfolio_entries_v6', JSON.stringify(entries));
+            localStorage.setItem('portfolio_entries_v7', JSON.stringify(entries));
             render();
         }
 
@@ -294,7 +359,6 @@
             else { lbl.innerText = 'Gewicht (g)'; inp.placeholder = "31.1"; }
         }
 
-        // --- RENDER LOGIC ---
         function render() {
             let totalInv = 0, totalVal = 0;
             let mInv = 0, mVal = 0, eInv = 0, eVal = 0;
@@ -313,37 +377,30 @@
                 totalInv += e.amount;
                 let val = 0;
                 
-                // Calc Value
                 if(e.category === 'gold') val = e.weight * pGold;
                 else if(e.category === 'silver') val = e.weight * pSilver;
                 else if(e.category === 'etf') val = e.weight * pEtf;
                 
-                // Fallback if offline/no price
                 if(val === 0 && pGold === 0) val = e.amount;
 
                 totalVal += val;
 
-                // Split Calc
                 if(e.category === 'etf') { eInv += e.amount; eVal += val; }
                 else { mInv += e.amount; mVal += val; }
 
-                // Time Diff Calc
                 const diffTime = Math.abs(new Date() - new Date(e.date));
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
                 let timeLabel = `Vor ${diffDays} Tagen`;
                 if(diffDays === 1) timeLabel = "Heute";
 
-                // Item PL
                 const pl = val - e.amount;
                 const plP = (e.amount > 0) ? (pl / e.amount) * 100 : 0;
                 const col = pl >= 0 ? 'text-green-500' : 'text-red-500';
                 
-                // Icons
                 let icon = 'ph-coins'; let bg = 'bg-yellow-500/10 text-yellow-500';
                 if(e.category === 'silver') { icon = 'ph-coin'; bg = 'bg-gray-500/10 text-gray-400'; }
                 if(e.category === 'etf') { icon = 'ph-chart-line-up'; bg = 'bg-blue-500/10 text-blue-500'; }
 
-                // DOM
                 const div = document.createElement('div');
                 div.className = 'bg-[#1c1c1e] p-3 rounded-2xl border border-[#2c2c2e] flex items-center gap-3 relative overflow-hidden';
                 div.innerHTML = `
@@ -370,7 +427,6 @@
                 elHistory.appendChild(div);
             });
 
-            // Update Totals
             elCurrentValue.innerText = new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR'}).format(totalVal);
             
             const totalPL = totalVal - totalInv;
@@ -379,7 +435,6 @@
             elPL.innerText = (totalPL >= 0 ? "+" : "") + new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR'}).format(totalPL);
             elPLPercent.innerText = (totalPL >= 0 ? "+" : "") + totalPLP.toFixed(2) + "%";
             
-            // Colors & Glow
             const glow = document.getElementById('glow-bg');
             if(totalPL >= 0) {
                 elPLContainer.className = "bg-green-500/10 px-3 py-1.5 rounded-lg border border-green-500/30 flex items-center gap-2";
@@ -393,7 +448,6 @@
                 glow.className = "absolute -top-10 -right-10 w-48 h-48 bg-red-500 rounded-full blur-[80px] opacity-20 pointer-events-none transition-colors duration-700";
             }
 
-            // Split Updates
             const mPL = mVal - mInv;
             const mPLP = mInv > 0 ? (mPL / mInv) * 100 : 0;
             elMetalValue.innerText = new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR', maximumFractionDigits:0}).format(mVal);
