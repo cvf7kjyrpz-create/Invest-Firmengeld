@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Portfolio V15</title>
+    <title>Portfolio V16</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -19,630 +19,485 @@
             font-family: 'Inter', sans-serif;
             background-color: #000000;
             color: #ffffff;
-            -webkit-tap-highlight-color: transparent;
-            overscroll-behavior-y: none;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden; /* No scrolling on main page */
+            display: flex;
+            flex-direction: column;
         }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+        /* Compact Inputs */
         input, select {
-            background: #1c1c1e;
-            border: 1px solid #2c2c2e;
+            background: #111;
+            border: 1px solid #333;
             color: white;
-            transition: all 0.2s ease;
+            border-radius: 8px;
             appearance: none;
         }
-        input:focus, select:focus {
-            outline: none;
-            border-color: #4ade80;
-            background: #252527;
-        }
-        input[type="date"] {
-            min-height: 40px;
-            display: block;
-            color-scheme: dark;
-        }
+        input:focus, select:focus { outline: none; border-color: #fff; }
         
         /* Animations */
         .spin-slow { animation: spin 1s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        
-        .fade-in-up { animation: fadeInUp 0.3s ease-out; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         /* Gradients */
-        .grad-gold { background: linear-gradient(180deg, rgba(234, 179, 8, 0.15) 0%, rgba(28,28,30,0) 100%); border-top: 1px solid rgba(234, 179, 8, 0.5); }
-        .grad-silver { background: linear-gradient(180deg, rgba(209, 213, 219, 0.15) 0%, rgba(28,28,30,0) 100%); border-top: 1px solid rgba(209, 213, 219, 0.5); }
-        .grad-etf { background: linear-gradient(180deg, rgba(59, 130, 246, 0.15) 0%, rgba(28,28,30,0) 100%); border-top: 1px solid rgba(59, 130, 246, 0.5); }
-        
-        .modal-overlay { background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); }
+        .grad-gold { background: linear-gradient(135deg, rgba(234, 179, 8, 0.2), rgba(0,0,0,0)); border: 1px solid rgba(234, 179, 8, 0.3); }
+        .grad-silver { background: linear-gradient(135deg, rgba(209, 213, 219, 0.2), rgba(0,0,0,0)); border: 1px solid rgba(209, 213, 219, 0.3); }
+        .grad-etf { background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(0,0,0,0)); border: 1px solid rgba(59, 130, 246, 0.3); }
+
         .view-section { display: none; height: 100%; flex-direction: column; }
         .view-section.active { display: flex; }
+        .modal-overlay { background: rgba(0,0,0,0.9); backdrop-filter: blur(5px); }
     </style>
 </head>
-<body class="h-screen overflow-hidden bg-black text-white">
+<body class="text-white">
 
-    <div id="viewDashboard" class="view-section active px-4 pt-10 pb-8">
+    <div id="viewDashboard" class="view-section active px-4 py-6">
         
-        <div class="flex justify-between items-center mb-6 shrink-0">
-            <button onclick="togglePrivacy()" class="w-10 h-10 rounded-full bg-[#1c1c1e] flex items-center justify-center text-gray-400 hover:text-white transition-colors border border-gray-800">
-                <i id="iconPrivacy" class="ph-bold ph-eye text-xl"></i>
-            </button>
-            <div class="flex gap-3">
-                <button onclick="fetchAllPrices()" class="w-10 h-10 rounded-full bg-[#1c1c1e] flex items-center justify-center text-blue-400 border border-gray-800 active:scale-90 transition-all">
-                    <i id="iconRefresh" class="ph-bold ph-cloud-arrow-down text-xl"></i>
-                </button>
-                <button onclick="openSettings()" class="w-10 h-10 rounded-full bg-[#1c1c1e] flex items-center justify-center text-gray-400 border border-gray-800 hover:text-white active:scale-90 transition-all">
-                    <i class="ph-bold ph-gear text-xl"></i>
-                </button>
+        <div class="flex justify-between items-center mb-4 shrink-0 h-10">
+            <button onclick="togglePrivacy()" class="text-gray-500 hover:text-white p-2"><i id="iconPrivacy" class="ph-bold ph-eye text-xl"></i></button>
+            <div class="flex gap-2">
+                <button onclick="fetchAllPrices()" class="text-blue-400 p-2"><i id="iconRefresh" class="ph-bold ph-arrows-clockwise text-xl"></i></button>
+                <button onclick="openSettings()" class="text-gray-500 hover:text-white p-2"><i class="ph-bold ph-gear text-xl"></i></button>
             </div>
         </div>
 
-        <div class="bg-gray-900 rounded-[32px] p-6 mb-6 border border-gray-800 relative overflow-hidden shadow-2xl shrink-0 flex flex-col justify-center min-h-[180px]">
-            <div id="glow-bg" class="absolute -top-20 -right-20 w-64 h-64 bg-blue-600 rounded-full blur-[90px] opacity-20 pointer-events-none transition-colors duration-700"></div>
-
-            <div class="relative z-10 text-center">
-                <p class="text-gray-500 text-[10px] font-bold uppercase tracking-[0.2em] mb-2">Gesamtvermögen</p>
-                <h1 id="currentValueDisplay" class="text-5xl font-extrabold tracking-tight text-white mb-4">•••• €</h1>
+        <div class="flex flex-col items-center justify-center grow-0 mb-6 relative">
+            <div class="text-center z-10">
+                <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Gesamtvermögen</p>
+                <h1 id="currentValueDisplay" class="text-4xl font-bold text-white mb-2 tracking-tight">•••• €</h1>
                 
-                <div class="flex justify-center items-center gap-3">
-                    <div id="plContainer" class="bg-gray-800/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/5 flex items-center gap-3">
-                        <span id="plDisplay" class="text-sm font-bold text-gray-300 border-r border-white/10 pr-3">•••• €</span>
-                        <span id="plPercent" class="text-xs font-black text-gray-500">0%</span>
-                    </div>
-                </div>
-                <div class="mt-4">
-                     <span id="sinceDateLabel" class="text-[10px] text-gray-600 font-bold uppercase tracking-wider">Lade Daten...</span>
+                <div class="inline-flex items-center bg-[#1c1c1e] rounded-full px-3 py-1 border border-[#333]">
+                    <span id="plDisplay" class="text-xs font-bold text-gray-300 mr-2 border-r border-gray-600 pr-2">•••• €</span>
+                    <span id="plPercent" class="text-xs font-bold text-gray-500">0%</span>
                 </div>
             </div>
+            <div class="absolute w-full h-full bg-blue-500/10 blur-[60px] rounded-full pointer-events-none z-0"></div>
         </div>
 
-        <div class="grid grid-cols-1 gap-3 mb-6">
+        <div class="grid grid-cols-1 gap-3 grow-0 mb-4">
             <div class="grid grid-cols-2 gap-3">
-                <div class="rounded-3xl p-4 grad-gold relative bg-[#1c1c1e] flex flex-col justify-between h-32">
+                <div class="grad-gold rounded-2xl p-3 relative h-28 flex flex-col justify-between">
                     <div class="flex justify-between items-start">
-                        <div class="bg-yellow-500/10 w-8 h-8 rounded-full flex items-center justify-center text-yellow-500"><i class="ph-fill ph-coins"></i></div>
-                        <span id="goldPL" class="text-[10px] font-bold text-gray-500">0%</span>
+                        <i class="ph-fill ph-coins text-yellow-500 text-xl"></i>
+                        <span id="goldPL" class="text-[10px] font-bold text-gray-400">0%</span>
                     </div>
                     <div>
-                        <p class="text-[10px] font-bold uppercase text-gray-500 mb-0.5">Gold</p>
-                        <h2 id="goldVal" class="text-lg font-bold text-white">•••• €</h2>
+                        <span class="text-[9px] uppercase font-bold text-yellow-500/70">Gold</span>
+                        <div id="goldVal" class="text-lg font-bold">•••• €</div>
                     </div>
                 </div>
-
-                <div class="rounded-3xl p-4 grad-silver relative bg-[#1c1c1e] flex flex-col justify-between h-32">
+                <div class="grad-silver rounded-2xl p-3 relative h-28 flex flex-col justify-between">
                     <div class="flex justify-between items-start">
-                        <div class="bg-gray-500/10 w-8 h-8 rounded-full flex items-center justify-center text-gray-300"><i class="ph-fill ph-coin"></i></div>
-                        <span id="silverPL" class="text-[10px] font-bold text-gray-500">0%</span>
+                        <i class="ph-fill ph-coin text-gray-300 text-xl"></i>
+                        <span id="silverPL" class="text-[10px] font-bold text-gray-400">0%</span>
                     </div>
                     <div>
-                        <p class="text-[10px] font-bold uppercase text-gray-500 mb-0.5">Silber</p>
-                        <h2 id="silverVal" class="text-lg font-bold text-white">•••• €</h2>
+                        <span class="text-[9px] uppercase font-bold text-gray-400">Silber</span>
+                        <div id="silverVal" class="text-lg font-bold">•••• €</div>
                     </div>
                 </div>
             </div>
-
-            <div class="rounded-3xl p-4 grad-etf relative bg-[#1c1c1e] flex items-center justify-between h-24">
-                <div class="flex flex-col justify-between h-full">
-                    <div class="bg-blue-500/10 w-8 h-8 rounded-full flex items-center justify-center text-blue-500 mb-2"><i class="ph-fill ph-chart-line-up"></i></div>
-                    <div>
-                        <p class="text-[10px] font-bold uppercase text-gray-500">iShares S&P 500</p>
-                        <h2 id="etfVal" class="text-xl font-bold text-white mt-0.5">•••• €</h2>
-                    </div>
+            <div class="grad-etf rounded-2xl p-3 relative h-20 flex items-center justify-between">
+                <div class="flex flex-col justify-center">
+                    <span class="text-[9px] uppercase font-bold text-blue-400">S&P 500 ETF</span>
+                    <div id="etfVal" class="text-xl font-bold">•••• €</div>
                 </div>
-                <div class="text-right flex flex-col justify-between h-full py-1">
-                    <span id="etfPL" class="text-xs font-bold text-gray-500 bg-gray-800/50 px-2 py-1 rounded-lg">0%</span>
-                    <p class="text-[9px] text-gray-600 font-mono">IE00B5BMR087</p>
+                <div class="text-right">
+                    <i class="ph-fill ph-chart-line-up text-blue-500 text-xl mb-1 block"></i>
+                    <span id="etfPL" class="text-[10px] font-bold text-gray-400">0%</span>
                 </div>
             </div>
         </div>
 
         <div class="flex-1"></div>
 
-        <div class="space-y-3 shrink-0">
-            <button onclick="openModal()" class="w-full h-14 bg-white text-black rounded-2xl text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 active:scale-95 transition-transform shadow-xl shadow-white/5">
-                <i class="ph-bold ph-plus-circle text-lg"></i> Kauf eintragen
+        <div class="grid grid-cols-2 gap-3 shrink-0 mt-2">
+            <button onclick="openModal()" class="h-12 bg-white text-black rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-transform">
+                <i class="ph-bold ph-plus-circle text-lg"></i> Eintrag
             </button>
-            
-            <button onclick="switchView('history')" class="w-full h-14 bg-[#1c1c1e] border border-gray-800 text-gray-300 rounded-2xl text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 active:bg-gray-800 transition-colors">
-                <i class="ph-bold ph-list-dashes text-lg"></i> Liste aller Käufe
+            <button onclick="switchView('history')" class="h-12 bg-[#1c1c1e] border border-[#333] text-gray-300 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 active:scale-95 transition-transform">
+                <i class="ph-bold ph-list text-lg"></i> Käufe
             </button>
         </div>
-
-        <div class="mt-4 text-center pb-safe">
-             <span id="lastUpdateLabel" class="text-[9px] text-gray-700 font-mono">Stand: --:--</span>
+        
+        <div class="text-center mt-2 pb-safe">
+            <span id="lastUpdateLabel" class="text-[8px] text-gray-600 font-mono">Stand: --:--</span>
         </div>
     </div>
 
-
-    <div id="viewHistory" class="view-section px-4 pt-10 pb-8 bg-black">
-        <div class="flex items-center justify-between mb-6 shrink-0">
-            <h2 class="text-2xl font-bold text-white">Deine Käufe</h2>
-            <button onclick="switchView('dashboard')" class="w-10 h-10 rounded-full bg-gray-900 border border-gray-800 flex items-center justify-center text-white active:scale-90">
-                <i class="ph-bold ph-x text-lg"></i>
-            </button>
+    <div id="viewHistory" class="view-section bg-black px-4 py-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-bold text-white">Historie</h2>
+            <button onclick="switchView('dashboard')" class="w-8 h-8 rounded-full bg-[#222] flex items-center justify-center text-white"><i class="ph-bold ph-x"></i></button>
         </div>
-
-        <div class="flex-1 overflow-hidden flex flex-col rounded-3xl bg-[#0f0f10] border border-gray-900">
-            <div id="historyList" class="overflow-y-auto no-scrollbar p-4 space-y-3">
-                </div>
-        </div>
-    </div>
-
-
-    <div id="settingsModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-6">
-        <div class="bg-[#1c1c1e] border border-gray-700 w-full max-w-sm rounded-2xl p-6 shadow-2xl animate-fade-in-up">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-white font-bold text-sm uppercase tracking-widest">Einstellungen</h3>
-                <button onclick="closeSettings()" class="text-gray-400 hover:text-white"><i class="ph-bold ph-x text-xl"></i></button>
+        <div class="flex-1 overflow-y-auto no-scrollbar space-y-2 pb-10" id="historyList">
             </div>
-
-            <div class="space-y-6">
-                <div>
-                    <p class="text-[10px] text-gray-500 uppercase font-bold mb-2">Manuelle Preise (Falls 0%)</p>
-                    <div class="grid grid-cols-3 gap-2">
-                        <div>
-                            <label class="text-[8px] text-yellow-500 uppercase block mb-1">Gold</label>
-                            <input type="number" id="manualGold" onchange="manualPriceUpdate()" class="w-full h-8 bg-black border border-gray-700 rounded text-center text-xs font-bold text-white">
-                        </div>
-                        <div>
-                            <label class="text-[8px] text-gray-400 uppercase block mb-1">Silber</label>
-                            <input type="number" id="manualSilver" onchange="manualPriceUpdate()" class="w-full h-8 bg-black border border-gray-700 rounded text-center text-xs font-bold text-white">
-                        </div>
-                        <div>
-                            <label class="text-[8px] text-blue-500 uppercase block mb-1">ETF</label>
-                            <input type="number" id="manualEtf" onchange="manualPriceUpdate()" class="w-full h-8 bg-black border border-gray-700 rounded text-center text-xs font-bold text-white">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="h-px bg-gray-800 w-full"></div>
-
-                <div class="space-y-2">
-                    <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Backup</p>
-                    <button onclick="exportBackup()" class="w-full h-10 bg-gray-800 rounded-lg text-xs font-bold text-gray-300 flex items-center justify-center gap-2 hover:bg-gray-700 transition-colors">
-                        <i class="ph-bold ph-download-simple"></i> Backup Speichern
-                    </button>
-                    <button onclick="document.getElementById('importFile').click()" class="w-full h-10 bg-gray-800 rounded-lg text-xs font-bold text-gray-300 flex items-center justify-center gap-2 hover:bg-gray-700 transition-colors">
-                        <i class="ph-bold ph-upload-simple"></i> Backup Laden
-                    </button>
-                    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(this)">
-                </div>
-            </div>
-        </div>
     </div>
 
-
-    <div id="entryModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-end sm:items-center justify-center p-4">
-        <div class="bg-[#1c1c1e] w-full max-w-sm rounded-3xl border border-gray-700 shadow-2xl p-6 animate-fade-in-up">
-            <div class="flex justify-between items-center mb-6">
-                <h3 id="modalTitle" class="text-white font-bold text-xl">Eintrag</h3>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-white"><i class="ph-bold ph-x text-xl"></i></button>
+    <div id="entryModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-[#111] border border-[#333] w-full max-w-sm rounded-2xl p-5 shadow-2xl animate-fade-in-up">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="modalTitle" class="text-white font-bold text-sm uppercase">Neuer Eintrag</h3>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-white"><i class="ph-bold ph-x text-lg"></i></button>
             </div>
             
-            <div class="space-y-4">
-                <div class="flex gap-3">
-                    <div class="w-1/3">
-                        <label class="text-[10px] text-gray-500 font-bold uppercase mb-1 block">Typ</label>
-                        <select id="inpCat" onchange="updateModalLabels()" class="w-full h-12 rounded-xl px-2 text-sm font-bold text-center bg-black border border-gray-800 focus:border-white">
-                            <option value="gold">Gold</option>
-                            <option value="silver">Silber</option>
-                            <option value="etf">ETF</option>
-                        </select>
-                    </div>
-                    <div class="w-2/3">
-                        <label class="text-[10px] text-gray-500 font-bold uppercase mb-1 block">Produkt</label>
-                        <input type="text" id="inpProd" placeholder="Name" class="w-full h-12 rounded-xl px-4 text-sm bg-black border border-gray-800 focus:border-white">
-                    </div>
+            <div class="space-y-3">
+                <div class="grid grid-cols-3 gap-2">
+                    <select id="inpCat" onchange="updateUI()" class="col-span-1 h-10 px-2 text-xs font-bold text-center"><option value="gold">Gold</option><option value="silver">Silber</option><option value="etf">ETF</option></select>
+                    <input type="text" id="inpProd" placeholder="Name" class="col-span-2 h-10 px-3 text-sm">
                 </div>
                 
-                <div class="flex gap-3">
-                    <div class="w-1/2">
-                        <label class="text-[10px] text-yellow-500 font-bold uppercase mb-1 block">Investiert (€)</label>
-                        <input type="number" id="inpAmt" placeholder="100.00" step="0.01" inputmode="decimal" class="w-full h-12 rounded-xl px-4 text-lg font-bold bg-black border border-gray-600 focus:border-yellow-500">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-[9px] text-gray-500 uppercase block mb-1">Investiert (€)</label>
+                        <input type="number" id="inpAmt" placeholder="0.00" step="0.01" class="w-full h-10 px-3 text-sm font-bold border-yellow-500/50">
                     </div>
-                    <div class="w-1/2" id="divWeight">
-                        <label id="lblWeight" class="text-[10px] text-gray-500 font-bold uppercase mb-1 block">Gewicht (g)</label>
-                        <input type="number" id="inpWgt" placeholder="0.00" step="0.01" inputmode="decimal" class="w-full h-12 rounded-xl px-4 text-lg font-medium bg-black border border-gray-800 focus:border-white">
-                    </div>
-                </div>
-                
-                <div class="flex gap-3">
-                    <div class="w-1/2">
-                        <label class="text-[10px] text-gray-500 font-bold uppercase mb-1 block">Ort</label>
-                        <input type="text" id="inpLoc" placeholder="Händler" class="w-full h-12 rounded-xl px-4 text-sm bg-black border border-gray-800 focus:border-white">
-                    </div>
-                    <div class="w-1/2">
-                        <label class="text-[10px] text-gray-500 font-bold uppercase mb-1 block">Datum</label>
-                        <input type="date" id="inpDate" class="w-full h-12 rounded-xl px-2 text-xs text-center font-medium bg-black border border-gray-800 focus:border-white">
+                    <div>
+                        <label id="lblWeight" class="text-[9px] text-gray-500 uppercase block mb-1">Menge / Anteile</label>
+                        <div class="relative">
+                            <input type="number" id="inpWgt" placeholder="0.00" step="0.0001" class="w-full h-10 pl-3 pr-8 text-sm">
+                            <button onclick="autoCalcShares()" class="absolute right-0 top-0 h-10 w-8 flex items-center justify-center text-blue-400 hover:text-white">
+                                <i class="ph-fill ph-magic-wand"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" id="inpLoc" placeholder="Ort (Optional)" class="h-10 px-3 text-xs">
+                    <input type="date" id="inpDate" class="h-10 px-2 text-xs text-center">
+                </div>
                 
-                <p id="etfNote" class="hidden text-[10px] text-blue-400 text-center bg-blue-500/10 p-2 rounded-lg">
-                    ⚡️ Die App berechnet die ETF-Anteile automatisch anhand des Datums.
+                <p class="text-[9px] text-gray-600 text-center leading-tight mt-1">
+                    Tipp: Klicke auf <i class="ph-fill ph-magic-wand text-blue-400"></i>, um Anteile anhand des Datums automatisch zu berechnen.
                 </p>
             </div>
 
-            <div class="mt-8 flex gap-3">
-                <button id="btnDelete" onclick="deleteCurrentEntry()" class="hidden w-1/3 h-12 bg-red-500/10 text-red-500 border border-red-500/30 font-bold rounded-xl active:scale-95 transition-transform text-sm">Löschen</button>
-                <button id="btnSave" onclick="saveEntry()" class="flex-1 h-12 bg-white text-black font-bold rounded-xl active:scale-95 transition-transform text-sm shadow-lg flex items-center justify-center gap-2">
-                    <span id="btnSaveText">Speichern</span>
-                </button>
+            <div class="mt-5 flex gap-2">
+                <button id="btnDelete" onclick="deleteEntry()" class="hidden w-1/3 h-10 bg-red-900/20 text-red-500 rounded-lg text-xs font-bold border border-red-900/30">Löschen</button>
+                <button onclick="saveEntry()" class="flex-1 h-10 bg-white text-black rounded-lg text-xs font-bold shadow-lg">Speichern</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="settingsModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-6">
+        <div class="bg-[#111] border border-[#333] w-full max-w-sm rounded-2xl p-5 shadow-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-white font-bold text-sm uppercase">Einstellungen</h3>
+                <button onclick="closeSettings()" class="text-gray-500 hover:text-white"><i class="ph-bold ph-x text-lg"></i></button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <p class="text-[9px] text-gray-500 uppercase font-bold mb-2">Manuelle Preise (Notfall)</p>
+                    <div class="grid grid-cols-3 gap-2">
+                        <input type="number" id="mGold" placeholder="Gold" class="h-8 text-center text-xs">
+                        <input type="number" id="mSilver" placeholder="Silber" class="h-8 text-center text-xs">
+                        <input type="number" id="mEtf" placeholder="ETF" class="h-8 text-center text-xs">
+                    </div>
+                    <button onclick="saveManualPrices()" class="w-full mt-2 h-8 bg-[#222] text-[10px] uppercase text-gray-300 rounded">Preise Erzwingen</button>
+                </div>
+                <div class="border-t border-[#222]"></div>
+                <div class="flex gap-2">
+                    <button onclick="exportBackup()" class="flex-1 h-10 bg-[#222] text-xs text-gray-300 rounded flex items-center justify-center gap-1"><i class="ph-bold ph-download-simple"></i> Sichern</button>
+                    <button onclick="document.getElementById('importFile').click()" class="flex-1 h-10 bg-[#222] text-xs text-gray-300 rounded flex items-center justify-center gap-1"><i class="ph-bold ph-upload-simple"></i> Laden</button>
+                    <input type="file" id="importFile" accept=".json" class="hidden" onchange="importBackup(this)">
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // CONFIG
-        let entries = JSON.parse(localStorage.getItem('portfolio_entries_v15')) || [];
-        // Migration V14 -> V15
-        if(entries.length === 0) {
-            const v14 = JSON.parse(localStorage.getItem('portfolio_entries_v14'));
-            if(v14) { entries = v14; localStorage.setItem('portfolio_entries_v15', JSON.stringify(entries)); }
-        }
+        // --- DATA ---
+        let entries = JSON.parse(localStorage.getItem('port_entries')) || [];
+        let prices = JSON.parse(localStorage.getItem('port_prices')) || { gold: 0, silver: 0, etf: 0, lastUpdate: 'Nie' };
+        let privacy = false;
+        let editId = null;
 
-        let prices = JSON.parse(localStorage.getItem('portfolio_prices_v15')) || { gold: 0, silver: 0, etf: 0, lastUpdate: 'Nie' };
-        let isPrivacyMode = false;
-        let currentEditId = null;
-
-        // UI Refs
-        const els = {
-            totalVal: document.getElementById('currentValueDisplay'),
-            plDisplay: document.getElementById('plDisplay'),
-            plPercent: document.getElementById('plPercent'),
-            plContainer: document.getElementById('plContainer'),
-            sinceDate: document.getElementById('sinceDateLabel'),
-            list: document.getElementById('historyList'),
-            goldVal: document.getElementById('goldVal'), goldPL: document.getElementById('goldPL'),
-            silverVal: document.getElementById('silverVal'), silverPL: document.getElementById('silverPL'),
-            etfVal: document.getElementById('etfVal'), etfPL: document.getElementById('etfPL'),
-            lastUpdate: document.getElementById('lastUpdateLabel'),
-            iconPrivacy: document.getElementById('iconPrivacy'),
-            // Modals
-            modal: document.getElementById('entryModal'),
-            settingsModal: document.getElementById('settingsModal'),
-            inpCat: document.getElementById('inpCat'), inpProd: document.getElementById('inpProd'),
-            inpAmt: document.getElementById('inpAmt'), inpWgt: document.getElementById('inpWgt'),
-            inpLoc: document.getElementById('inpLoc'), inpDate: document.getElementById('inpDate'),
-            btnDelete: document.getElementById('btnDelete'), lblWeight: document.getElementById('lblWeight'),
-            divWeight: document.getElementById('divWeight'), etfNote: document.getElementById('etfNote'),
-            btnSave: document.getElementById('btnSave'), btnSaveText: document.getElementById('btnSaveText'),
-            // Manual Prices
-            mGold: document.getElementById('manualGold'),
-            mSilver: document.getElementById('manualSilver'),
-            mEtf: document.getElementById('manualEtf')
-        };
-
-        // INIT
-        els.mGold.value = prices.gold ? prices.gold.toFixed(2) : '';
-        els.mSilver.value = prices.silver ? prices.silver.toFixed(2) : '';
-        els.mEtf.value = prices.etf ? prices.etf.toFixed(2) : '';
-
-        render();
-        document.addEventListener("DOMContentLoaded", fetchAllPrices);
-        document.addEventListener("visibilitychange", () => { if (document.visibilityState === 'visible') fetchAllPrices(); });
-
-        // VIEW LOGIC
-        function switchView(viewName) {
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            if(viewName === 'history') {
-                document.getElementById('viewHistory').classList.add('active');
-                renderList();
-            } else {
-                document.getElementById('viewDashboard').classList.add('active');
-                render();
-            }
-        }
+        // --- DOM REFS ---
+        const $ = (id) => document.getElementById(id);
         
-        function togglePrivacy() {
-            isPrivacyMode = !isPrivacyMode;
-            els.iconPrivacy.className = isPrivacyMode ? "ph-bold ph-eye-slash text-xl" : "ph-bold ph-eye text-xl";
-            render(); 
-        }
-
-        function openSettings() { els.settingsModal.classList.remove('hidden'); els.settingsModal.classList.add('flex'); }
-        function closeSettings() { els.settingsModal.classList.add('hidden'); els.settingsModal.classList.remove('flex'); }
-
-        function manualPriceUpdate() {
-            prices.gold = parseFloat(els.mGold.value) || 0;
-            prices.silver = parseFloat(els.mSilver.value) || 0;
-            prices.etf = parseFloat(els.mEtf.value) || 0;
-            prices.lastUpdate = "Manuell";
-            localStorage.setItem('portfolio_prices_v15', JSON.stringify(prices));
+        // --- INIT ---
+        init();
+        function init() {
+            // Restore manual inputs
+            $('mGold').value = prices.gold || ''; $('mSilver').value = prices.silver || ''; $('mEtf').value = prices.etf || '';
             render();
+            fetchAllPrices();
         }
 
-        // --- HISTORICAL FETCHING ---
-        async function getHistoricalPrice(symbol, dateString) {
-            const date = new Date(dateString);
-            const ts = Math.floor(date.getTime() / 1000);
-            // Request 1 day range. Yahoo uses seconds.
-            const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?period1=${ts}&period2=${ts+86400}&interval=1d`;
-            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-            
-            try {
-                const res = await fetch(proxyUrl);
-                const data = await res.json();
-                const json = JSON.parse(data.contents);
-                const result = json.chart.result[0];
-                const closePrice = result.indicators.quote[0].close[0];
-                return closePrice;
-            } catch(e) { console.error(e); return null; }
-        }
-
-        // --- FETCHING CURRENT PRICES ---
+        // --- FETCHING (ROBUST) ---
         async function fetchAllPrices() {
-            const icon = document.getElementById('iconRefresh');
-            icon.classList.add('ph-spinner', 'spin-slow', 'text-blue-400');
+            const btn = $('iconRefresh');
+            btn.classList.add('spin-slow');
             
-            const fetchSafe = async (symbol) => {
-                try {
-                    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d&_=${new Date().getTime()}`;
-                    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-                    const res = await fetch(proxyUrl);
-                    const data = await res.json();
-                    if(!data.contents) return null;
-                    return JSON.parse(data.contents).chart.result[0].meta.regularMarketPrice;
-                } catch(e) { return null; }
+            // Helper: Try multiple sources/proxies if one fails
+            const fetchTicker = async (symbol) => {
+                const urls = [
+                    `https://api.allorigins.win/get?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d&ts=${Date.now()}`)}`,
+                    `https://corsproxy.io/?${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`)}`
+                ];
+                
+                for(let u of urls) {
+                    try {
+                        const res = await fetch(u);
+                        const data = await res.json();
+                        // Handle AllOrigins wrapper vs raw
+                        const json = data.contents ? JSON.parse(data.contents) : data;
+                        return json.chart.result[0].meta.regularMarketPrice;
+                    } catch(e) { console.log(`Fail ${symbol} on ${u}`); continue; }
+                }
+                return null;
             };
 
-            const [g, s, e] = await Promise.all([
-                fetchSafe('XAUEUR=X'), fetchSafe('XAGEUR=X'), fetchSafe('SXR8.DE')
-            ]);
+            const [g, s, e] = await Promise.all([fetchTicker('XAUEUR=X'), fetchTicker('XAGEUR=X'), fetchTicker('SXR8.DE')]);
+            
+            if(g) { prices.gold = g / 31.1034768; $('mGold').value = prices.gold.toFixed(2); }
+            if(s) { prices.silver = s / 31.1034768; $('mSilver').value = prices.silver.toFixed(2); }
+            if(e) { prices.etf = e; $('mEtf').value = prices.etf.toFixed(2); }
 
-            if(g) { prices.gold = g / 31.1034768; els.mGold.value = prices.gold.toFixed(2); }
-            if(s) { prices.silver = s / 31.1034768; els.mSilver.value = prices.silver.toFixed(2); }
-            if(e) { prices.etf = e; els.mEtf.value = prices.etf.toFixed(2); }
-
-            if(g || s || e) {
+            if(g||s||e) {
                 prices.lastUpdate = new Date().toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
-                localStorage.setItem('portfolio_prices_v15', JSON.stringify(prices));
+                localStorage.setItem('port_prices', JSON.stringify(prices));
             }
             
             render();
-            icon.classList.remove('ph-spinner', 'spin-slow');
-            icon.classList.add('ph-check', 'text-green-500');
-            setTimeout(() => { icon.classList.remove('ph-check', 'text-green-500'); icon.classList.remove('text-blue-400'); }, 2000);
+            btn.classList.remove('spin-slow');
         }
 
-        // RENDER DASHBOARD
-        function render() {
-            let tInv=0, tVal=0, gInv=0, gVal=0, sInv=0, sVal=0, eInv=0, eVal=0;
+        // --- ETF MAGIC FIX (HISTORICAL) ---
+        async function autoCalcShares() {
+            const amt = parseFloat($('inpAmt').value);
+            const date = $('inpDate').value;
+            const cat = $('inpCat').value;
+            
+            if(!amt || !date) { alert("Bitte erst Preis & Datum eingeben."); return; }
+            
+            let symbol = 'SXR8.DE'; // Default ETF
+            if(cat === 'gold') symbol = 'XAUEUR=X';
+            if(cat === 'silver') symbol = 'XAGEUR=X';
 
-            if(entries.length === 0) els.sinceDate.innerText = "Keine Daten";
-            else {
-                const sorted = [...entries].sort((a,b) => new Date(a.date) - new Date(b.date));
-                els.sinceDate.innerText = "Seit " + new Date(sorted[0].date).toLocaleDateString('de-DE');
+            const btn = document.querySelector('.ph-magic-wand').parentElement;
+            btn.innerHTML = '<i class="ph-bold ph-spinner spin-slow"></i>';
+            
+            try {
+                // Fetch historical close
+                const ts = Math.floor(new Date(date).getTime() / 1000);
+                const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?period1=${ts}&period2=${ts+86400}&interval=1d`;
+                const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+                
+                const res = await fetch(proxy);
+                const data = await res.json();
+                const json = JSON.parse(data.contents);
+                const close = json.chart.result[0].indicators.quote[0].close[0];
+                
+                if(close) {
+                    let price = close;
+                    if(cat !== 'etf') price = price / 31.1034768; // Oz to Gram for metals
+                    
+                    const shares = amt / price;
+                    $('inpWgt').value = shares.toFixed(4);
+                    alert(`Kurs am ${date}: ${price.toFixed(2)}€\nBerechnete Anteile: ${shares.toFixed(4)}`);
+                } else {
+                    throw new Error("Kein Kurs");
+                }
+            } catch(e) {
+                const manual = prompt("Historischer Kurs nicht gefunden (Wochenende?).\nBitte Stückzahl manuell eingeben:", "");
+                if(manual) $('inpWgt').value = manual;
             }
-            els.lastUpdate.innerText = "Stand: " + prices.lastUpdate;
+            btn.innerHTML = '<i class="ph-fill ph-magic-wand"></i>';
+        }
+
+        // --- RENDER ---
+        function render() {
+            let tInv=0, tVal=0, gVal=0, sVal=0, eVal=0;
+            let gInv=0, sInv=0, eInv=0;
 
             entries.forEach(e => {
                 tInv += e.amount;
                 let p = 0;
-                if(e.category === 'gold') p = prices.gold;
-                else if(e.category === 'silver') p = prices.silver;
-                else p = prices.etf;
+                if(e.category === 'gold') { p = prices.gold; gInv += e.amount; }
+                else if(e.category === 'silver') { p = prices.silver; sInv += e.amount; }
+                else { p = prices.etf; eInv += e.amount; }
                 
-                let val = (p > 0) ? e.weight * p : e.amount;
+                let val = (p > 0) ? e.weight * p : e.amount; // Fallback to cost if no price
                 
-                if(e.category === 'gold') { gVal += val; gInv += e.amount; }
-                else if(e.category === 'silver') { sVal += val; sInv += e.amount; }
-                else if(e.category === 'etf') { eVal += val; eInv += e.amount; }
+                if(e.category === 'gold') gVal += val;
+                else if(e.category === 'silver') sVal += val;
+                else eVal += val;
+                
                 tVal += val;
             });
 
-            els.totalVal.innerText = fmt(tVal);
-            const totalPL = tVal - tInv;
-            const totalPLP = tInv > 0 ? (totalPL/tInv)*100 : 0;
+            // Main Display
+            $('currentValueDisplay').innerText = privacy ? '•••• €' : fmt(tVal);
+            const pl = tVal - tInv;
+            const plP = tInv > 0 ? (pl/tInv)*100 : 0;
             
-            els.plDisplay.innerText = (totalPL >= 0 ? "+" : "") + fmt(totalPL);
-            els.plPercent.innerText = (totalPL >= 0 ? "+" : "") + totalPLP.toFixed(2) + "%";
+            $('plDisplay').innerText = privacy ? '•••• €' : (pl>=0?'+':'') + fmt(pl);
+            $('plPercent').innerText = (pl>=0?'+':'') + plP.toFixed(2) + "%";
+            $('plPercent').className = "text-xs font-bold " + (pl>=0 ? "text-green-500" : "text-red-500");
             
-            if(totalPL >= 0) {
-                els.plContainer.className = "bg-green-500/10 backdrop-blur-md px-4 py-2 rounded-full border border-green-500/20 flex items-center gap-3";
-                els.plDisplay.className = "text-sm font-bold text-green-400 border-r border-green-500/20 pr-3";
-                els.plPercent.className = "text-xs font-black text-green-400";
-                document.getElementById('glow-bg').className = "absolute -top-20 -right-20 w-64 h-64 bg-green-500 rounded-full blur-[90px] opacity-20 pointer-events-none transition-colors duration-700";
-            } else {
-                els.plContainer.className = "bg-red-500/10 backdrop-blur-md px-4 py-2 rounded-full border border-red-500/20 flex items-center gap-3";
-                els.plDisplay.className = "text-sm font-bold text-red-400 border-r border-red-500/20 pr-3";
-                els.plPercent.className = "text-xs font-black text-red-400";
-                document.getElementById('glow-bg').className = "absolute -top-20 -right-20 w-64 h-64 bg-red-500 rounded-full blur-[90px] opacity-20 pointer-events-none transition-colors duration-700";
-            }
+            $('lastUpdateLabel').innerText = "Stand: " + prices.lastUpdate;
 
-            updateCard(els.goldVal, els.goldPL, gVal, gInv);
-            updateCard(els.silverVal, els.silverPL, sVal, sInv);
-            updateCard(els.etfVal, els.etfPL, eVal, eInv);
+            // Cards
+            updateCard('gold', gVal, gInv);
+            updateCard('silver', sVal, sInv);
+            updateCard('etf', eVal, eInv);
         }
 
-        // RENDER LIST
+        function updateCard(id, curr, inv) {
+            const diff = curr - inv;
+            const pct = inv > 0 ? (diff/inv)*100 : 0;
+            $(`${id}Val`).innerText = privacy ? '••••' : fmt0(curr);
+            $(`${id}PL`).innerText = (diff>=0?'+':'') + pct.toFixed(1) + "%";
+            $(`${id}PL`).className = "text-[10px] font-bold " + (diff>=0 ? "text-green-500" : "text-red-500");
+        }
+
         function renderList() {
-            els.list.innerHTML = '';
-            if(entries.length === 0) {
-                els.list.innerHTML = '<div class="text-center text-gray-600 mt-10">Keine Daten</div>';
-                return;
-            }
+            const list = $('historyList');
+            list.innerHTML = '';
+            
+            // Group by Date or just list? Minimalist list.
+            const sorted = [...entries].sort((a,b) => new Date(b.date) - new Date(a.date));
+            
+            if(sorted.length === 0) list.innerHTML = '<div class="text-center text-gray-600 mt-10 text-xs">Keine Einträge</div>';
 
-            entries.forEach(e => {
-                let p = 0;
-                if(e.category === 'gold') p = prices.gold;
-                else if(e.category === 'silver') p = prices.silver;
-                else p = prices.etf;
-
+            sorted.forEach(e => {
+                let p = (e.category === 'gold') ? prices.gold : (e.category === 'silver' ? prices.silver : prices.etf);
                 const val = (p > 0) ? e.weight * p : e.amount;
                 const pl = val - e.amount;
                 const plP = e.amount > 0 ? (pl/e.amount)*100 : 0;
                 const col = pl >= 0 ? 'text-green-500' : 'text-red-500';
-                
-                const dateStr = new Date(e.date).toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit', year:'2-digit'});
-                let icon = 'ph-coins'; let iconCol = 'text-yellow-500';
-                if(e.category === 'silver') { icon = 'ph-coin'; iconCol = 'text-gray-300'; }
-                if(e.category === 'etf') { icon = 'ph-chart-line-up'; iconCol = 'text-blue-500'; }
 
-                const el = document.createElement('div');
-                el.onclick = () => openModal(e.id);
-                el.className = 'bg-[#1c1c1e] p-4 rounded-2xl border border-[#2c2c2e] flex items-center gap-4 active:bg-gray-800 transition-colors cursor-pointer';
-                el.innerHTML = `
-                    <div class="w-12 h-12 rounded-full bg-black border border-gray-800 flex items-center justify-center text-xl shrink-0 ${iconCol}">
-                        <i class="ph-fill ${icon}"></i>
+                const item = document.createElement('div');
+                item.className = 'bg-[#111] p-3 rounded-xl border border-[#222] flex items-center justify-between';
+                item.onclick = () => openModal(e.id);
+                
+                item.innerHTML = `
+                    <div>
+                        <div class="font-bold text-sm text-white">${e.product}</div>
+                        <div class="text-[10px] text-gray-500">${new Date(e.date).toLocaleDateString('de-DE')} • ${e.category.toUpperCase()}</div>
                     </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="flex justify-between items-baseline mb-1">
-                            <h4 class="text-white font-bold text-sm truncate pr-2">${e.product}</h4>
-                            <span class="text-white font-bold text-sm">${fmt(val)}</span>
-                        </div>
-                        <div class="flex justify-between items-center text-[11px] text-gray-500">
-                            <div class="flex items-center gap-3">
-                                <span>${dateStr}</span>
-                                ${e.location ? `<span>• ${e.location}</span>` : ''}
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-gray-600">${isPrivacyMode ? '•••• €' : fmt0(e.amount)}</span>
-                                <span class="font-bold ${col}">${pl >= 0 ? '+' : ''}${plP.toFixed(1)}%</span>
-                            </div>
-                        </div>
+                    <div class="text-right">
+                        <div class="text-sm font-bold text-gray-300">${privacy ? '•••' : fmt(val)}</div>
+                        <div class="text-[10px] ${col}">${pl>=0?'+':''}${plP.toFixed(1)}%</div>
                     </div>
                 `;
-                els.list.appendChild(el);
+                list.appendChild(item);
             });
         }
 
-        function updateCard(elVal, elPL, curr, inv) {
-            const diff = curr - inv;
-            const pct = inv > 0 ? (diff/inv)*100 : 0;
-            elVal.innerText = fmt(curr);
-            elPL.innerText = (diff >= 0 ? "+" : "") + pct.toFixed(1) + "%";
-            elPL.className = diff >= 0 ? "text-[10px] font-black text-green-500" : "text-[10px] font-black text-red-500";
-        }
-
-        // ACTIONS
+        // --- ACTIONS ---
         function openModal(id = null) {
-            currentEditId = id;
-            els.modal.classList.remove('hidden'); els.modal.classList.add('flex');
+            editId = id;
+            $('entryModal').classList.remove('hidden'); $('entryModal').classList.add('flex');
+            
             if(id) {
                 const e = entries.find(x => x.id === id);
-                document.getElementById('modalTitle').innerText = "Bearbeiten";
-                els.btnDelete.classList.remove('hidden');
-                els.inpCat.value = e.category; els.inpProd.value = e.product;
-                els.inpAmt.value = e.amount; els.inpWgt.value = e.weight;
-                els.inpLoc.value = e.location || ''; els.inpDate.value = e.date;
-                // Force show weight field in edit mode so user can see what happened
-                els.divWeight.classList.remove('hidden');
-                els.etfNote.classList.add('hidden');
+                $('modalTitle').innerText = "Bearbeiten";
+                $('btnDelete').classList.remove('hidden');
+                $('inpCat').value = e.category; $('inpProd').value = e.product;
+                $('inpAmt').value = e.amount; $('inpWgt').value = e.weight;
+                $('inpLoc').value = e.location || ''; $('inpDate').value = e.date;
             } else {
-                document.getElementById('modalTitle').innerText = "Neuer Kauf";
-                els.btnDelete.classList.add('hidden');
-                els.inpCat.value = 'gold'; els.inpProd.value = '';
-                els.inpAmt.value = ''; els.inpWgt.value = '';
-                els.inpLoc.value = ''; els.inpDate.value = new Date().toISOString().split('T')[0];
+                $('modalTitle').innerText = "Neu";
+                $('btnDelete').classList.add('hidden');
+                $('inpCat').value = 'gold'; $('inpProd').value = '';
+                $('inpAmt').value = ''; $('inpWgt').value = '';
+                $('inpLoc').value = ''; $('inpDate').value = new Date().toISOString().split('T')[0];
             }
-            updateModalLabels();
-        }
-        function closeModal() { els.modal.classList.add('hidden'); els.modal.classList.remove('flex'); currentEditId = null; }
-        
-        function updateModalLabels() {
-            if(els.inpCat.value === 'etf') { 
-                // Smart ETF Mode
-                if(!currentEditId) {
-                    els.divWeight.classList.add('hidden'); // Hide weight input for new ETF
-                    els.etfNote.classList.remove('hidden');
-                }
-                if(els.inpProd.value === '') els.inpProd.value = "iShares S&P 500";
-            } else { 
-                els.divWeight.classList.remove('hidden');
-                els.etfNote.classList.add('hidden');
-                els.lblWeight.innerText = "Gewicht (g)"; 
-                els.inpWgt.placeholder="31.1"; 
-                if(els.inpProd.value === "iShares S&P 500") els.inpProd.value = "";
-            }
+            updateUI();
         }
         
-        async function saveEntry() {
-            const amt = parseFloat(els.inpAmt.value);
-            const cat = els.inpCat.value;
-            const dateStr = els.inpDate.value;
-            let wgt = parseFloat(els.inpWgt.value);
-            
-            if(!amt || amt <= 0) { alert("Preis fehlt!"); return; }
-
-            // HISTORICAL CALCULATION LOGIC
-            if(cat === 'etf' && (!wgt || wgt === 0)) {
-                els.btnSaveText.innerText = "Suche Kurs...";
-                els.btnSave.disabled = true;
-                
-                // Try fetch historical price
-                const histPrice = await getHistoricalPrice('SXR8.DE', dateStr);
-                
-                if(histPrice) {
-                    wgt = amt / histPrice; // Calculate Units
-                    alert(`Historischer Kurs gefunden: ${histPrice.toFixed(2)}€\nBerechnete Anteile: ${wgt.toFixed(4)} Stück`);
-                } else {
-                    const manual = prompt("Konnte historischen Kurs nicht finden (Wochenende/Feiertag?).\nBitte Stückzahl manuell eingeben:", "0");
-                    if(!manual) { 
-                         els.btnSaveText.innerText = "Speichern"; els.btnSave.disabled = false; return; 
-                    }
-                    wgt = parseFloat(manual);
-                }
-                els.btnSaveText.innerText = "Speichern"; els.btnSave.disabled = false;
+        function updateUI() {
+            const cat = $('inpCat').value;
+            $('lblWeight').innerText = cat === 'etf' ? "Anteile (Stück)" : "Gewicht (g)";
+            if(!editId) {
+                if(cat === 'etf') $('inpProd').value = "iShares S&P 500";
+                else $('inpProd').value = "";
             }
+        }
 
-            let prod = els.inpProd.value.trim();
-            if(!prod) prod = cat === 'etf' ? "iShares S&P 500" : (cat==='gold'?"Gold":"Silber");
+        function saveEntry() {
+            const amt = parseFloat($('inpAmt').value);
+            const wgt = parseFloat($('inpWgt').value);
+            const cat = $('inpCat').value;
+            if(!amt) { alert("Betrag fehlt"); return; }
+            if(isNaN(wgt)) { alert("Menge/Anteil fehlt (nutze Zauberstab)"); return; }
 
             const item = {
-                id: currentEditId || Date.now(),
-                amount: amt, weight: wgt || 0, category: cat,
-                product: prod, location: els.inpLoc.value.trim(), date: dateStr
+                id: editId || Date.now(),
+                category: cat,
+                product: $('inpProd').value || cat.toUpperCase(),
+                amount: amt,
+                weight: wgt,
+                location: $('inpLoc').value,
+                date: $('inpDate').value
             };
 
-            if(currentEditId) {
-                const idx = entries.findIndex(x => x.id === currentEditId);
-                entries[idx] = item;
-            } else {
-                entries.unshift(item);
-            }
-            entries.sort((a,b) => new Date(b.date) - new Date(a.date));
-            localStorage.setItem('portfolio_entries_v15', JSON.stringify(entries));
+            if(editId) entries = entries.map(e => e.id === editId ? item : e);
+            else entries.push(item);
             
-            if(document.getElementById('viewHistory').classList.contains('active')) renderList();
-            render(); closeModal();
+            localStorage.setItem('port_entries', JSON.stringify(entries));
+            closeModal();
+            render();
+            if($('viewHistory').classList.contains('active')) renderList();
         }
-        
-        function deleteCurrentEntry() {
+
+        function deleteEntry() {
             if(confirm("Löschen?")) {
-                entries = entries.filter(x => x.id !== currentEditId);
-                localStorage.setItem('portfolio_entries_v15', JSON.stringify(entries));
-                if(document.getElementById('viewHistory').classList.contains('active')) renderList();
-                render(); closeModal();
+                entries = entries.filter(e => e.id !== editId);
+                localStorage.setItem('port_entries', JSON.stringify(entries));
+                closeModal();
+                render();
+                if($('viewHistory').classList.contains('active')) renderList();
             }
         }
+
+        // --- SYSTEM ---
+        function switchView(v) {
+            document.querySelectorAll('.view-section').forEach(e => e.classList.remove('active'));
+            if(v === 'history') { $('viewHistory').classList.add('active'); renderList(); }
+            else { $('viewDashboard').classList.add('active'); render(); }
+        }
+        function togglePrivacy() { privacy = !privacy; $('iconPrivacy').className = privacy ? "ph-bold ph-eye-slash text-xl" : "ph-bold ph-eye text-xl"; render(); }
+        function closeModal() { $('entryModal').classList.remove('flex'); $('entryModal').classList.add('hidden'); editId = null; }
+        function openSettings() { $('settingsModal').classList.remove('hidden'); $('settingsModal').classList.add('flex'); }
+        function closeSettings() { $('settingsModal').classList.add('hidden'); $('settingsModal').classList.remove('flex'); }
         
+        function saveManualPrices() {
+            prices.gold = parseFloat($('mGold').value) || prices.gold;
+            prices.silver = parseFloat($('mSilver').value) || prices.silver;
+            prices.etf = parseFloat($('mEtf').value) || prices.etf;
+            prices.lastUpdate = "Manuell";
+            localStorage.setItem('port_prices', JSON.stringify(prices));
+            render(); closeSettings();
+        }
+
         function exportBackup() {
-            const d = {entries, prices, version:'v15'};
             const a = document.createElement('a');
-            a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(d));
+            a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({entries, prices}));
             a.download = "portfolio_backup.json"; a.click();
         }
-        
-        function importBackup(inp) {
-            const f = inp.files[0];
-            if(!f) return;
+        function importBackup(el) {
             const r = new FileReader();
             r.onload = e => {
                 try {
                     const d = JSON.parse(e.target.result);
-                    if(confirm("Daten überschreiben?")) {
-                        if(d.entries) { entries = d.entries; localStorage.setItem('portfolio_entries_v15', JSON.stringify(entries)); }
-                        if(d.prices) { prices = d.prices; localStorage.setItem('portfolio_prices_v15', JSON.stringify(prices)); }
-                        location.reload();
-                    }
-                } catch(err) { alert("Fehler"); }
+                    if(d.entries) entries = d.entries;
+                    if(d.prices) prices = d.prices;
+                    localStorage.setItem('port_entries', JSON.stringify(entries));
+                    location.reload();
+                } catch(err) { alert("Backup Fehler"); }
             };
-            r.readAsText(f);
-            closeSettings();
+            if(el.files[0]) r.readAsText(el.files[0]);
         }
-        
-        function fmt(n) { return isPrivacyMode ? '•••• €' : new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR'}).format(n); }
+
+        function fmt(n) { return new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR'}).format(n); }
         function fmt0(n) { return new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR', maximumFractionDigits:0}).format(n); }
     </script>
 </body>
