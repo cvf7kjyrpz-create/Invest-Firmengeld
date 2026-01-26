@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Portfolio V16</title>
+    <title>Portfolio V18</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -21,12 +21,11 @@
             color: #ffffff;
             height: 100vh;
             width: 100vw;
-            overflow: hidden; /* No scrolling on main page */
+            overflow: hidden;
             display: flex;
             flex-direction: column;
         }
 
-        /* Compact Inputs */
         input, select {
             background: #111;
             border: 1px solid #333;
@@ -35,150 +34,150 @@
             appearance: none;
         }
         input:focus, select:focus { outline: none; border-color: #fff; }
-        
-        /* Animations */
-        .spin-slow { animation: spin 1s linear infinite; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .fade-in { animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Gradients */
-        .grad-gold { background: linear-gradient(135deg, rgba(234, 179, 8, 0.2), rgba(0,0,0,0)); border: 1px solid rgba(234, 179, 8, 0.3); }
-        .grad-silver { background: linear-gradient(135deg, rgba(209, 213, 219, 0.2), rgba(0,0,0,0)); border: 1px solid rgba(209, 213, 219, 0.3); }
-        .grad-etf { background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(0,0,0,0)); border: 1px solid rgba(59, 130, 246, 0.3); }
+        .spin-slow { animation: spin 0.8s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .card-glass {
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            transition: transform 0.1s ease, background 0.2s ease;
+        }
+        .card-glass:active { transform: scale(0.97); background: rgba(40, 40, 40, 0.6); }
+        
+        .grad-gold { border-top: 2px solid #EAB308; background: linear-gradient(180deg, rgba(234,179,8,0.1), rgba(0,0,0,0)); }
+        .grad-silver { border-top: 2px solid #9CA3AF; background: linear-gradient(180deg, rgba(156,163,175,0.1), rgba(0,0,0,0)); }
+        .grad-etf { border-top: 2px solid #3B82F6; background: linear-gradient(180deg, rgba(59,130,246,0.1), rgba(0,0,0,0)); }
 
         .view-section { display: none; height: 100%; flex-direction: column; }
         .view-section.active { display: flex; }
-        .modal-overlay { background: rgba(0,0,0,0.9); backdrop-filter: blur(5px); }
+        .modal-overlay { background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); }
     </style>
 </head>
 <body class="text-white">
 
-    <div id="viewDashboard" class="view-section active px-4 py-6">
+    <div id="viewDashboard" class="view-section active px-4 pt-8 pb-4 relative">
         
-        <div class="flex justify-between items-center mb-4 shrink-0 h-10">
-            <button onclick="togglePrivacy()" class="text-gray-500 hover:text-white p-2"><i id="iconPrivacy" class="ph-bold ph-eye text-xl"></i></button>
-            <div class="flex gap-2">
-                <button onclick="fetchAllPrices()" class="text-blue-400 p-2"><i id="iconRefresh" class="ph-bold ph-arrows-clockwise text-xl"></i></button>
-                <button onclick="openSettings()" class="text-gray-500 hover:text-white p-2"><i class="ph-bold ph-gear text-xl"></i></button>
+        <div class="flex justify-between items-center mb-2 shrink-0 z-20">
+            <button onclick="togglePrivacy()" class="p-2 text-gray-400 hover:text-white"><i id="iconPrivacy" class="ph-bold ph-eye text-xl"></i></button>
+            <div onclick="openSettings()" class="bg-[#111] px-3 py-1 rounded-full border border-[#333] flex items-center gap-2 cursor-pointer">
+                <div class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" id="statusDot"></div>
+                <span id="priceTicker" class="text-[9px] font-mono text-gray-300">Kurse laden...</span>
             </div>
+            <button onclick="forceRefresh()" class="p-2 text-blue-400 hover:text-white"><i id="iconRefresh" class="ph-bold ph-arrows-clockwise text-xl"></i></button>
         </div>
 
-        <div class="flex flex-col items-center justify-center grow-0 mb-6 relative">
-            <div class="text-center z-10">
-                <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Gesamtvermögen</p>
-                <h1 id="currentValueDisplay" class="text-4xl font-bold text-white mb-2 tracking-tight">•••• €</h1>
-                
-                <div class="inline-flex items-center bg-[#1c1c1e] rounded-full px-3 py-1 border border-[#333]">
-                    <span id="plDisplay" class="text-xs font-bold text-gray-300 mr-2 border-r border-gray-600 pr-2">•••• €</span>
-                    <span id="plPercent" class="text-xs font-bold text-gray-500">0%</span>
-                </div>
+        <div class="flex flex-col items-center justify-center shrink-0 mb-4 relative z-10 min-h-[160px]">
+            <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1">Gesamtvermögen</p>
+            <h1 id="currentValueDisplay" class="text-5xl font-extrabold text-white mb-3 tracking-tighter">•••• €</h1>
+            
+            <div class="inline-flex items-center bg-[#1c1c1e] rounded-full px-4 py-1.5 border border-[#333] shadow-lg">
+                <span id="plDisplay" class="text-xs font-bold text-gray-300 mr-2 border-r border-gray-600 pr-2">•••• €</span>
+                <span id="plPercent" class="text-xs font-bold text-gray-500">0%</span>
             </div>
-            <div class="absolute w-full h-full bg-blue-500/10 blur-[60px] rounded-full pointer-events-none z-0"></div>
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-blue-600/20 rounded-full blur-[80px] -z-10 pointer-events-none"></div>
         </div>
 
-        <div class="grid grid-cols-1 gap-3 grow-0 mb-4">
-            <div class="grid grid-cols-2 gap-3">
-                <div class="grad-gold rounded-2xl p-3 relative h-28 flex flex-col justify-between">
-                    <div class="flex justify-between items-start">
-                        <i class="ph-fill ph-coins text-yellow-500 text-xl"></i>
-                        <span id="goldPL" class="text-[10px] font-bold text-gray-400">0%</span>
+        <div class="grid grid-cols-1 gap-2 shrink-0 z-10">
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="switchView('history', 'gold')" class="card-glass grad-gold p-3 h-32 flex flex-col justify-between relative overflow-hidden text-left">
+                    <div class="flex justify-between items-start z-10">
+                        <span class="text-[9px] uppercase font-black text-yellow-500 tracking-wider">Gold</span>
+                        <span id="goldPL" class="text-[9px] font-bold text-gray-500">0%</span>
                     </div>
-                    <div>
-                        <span class="text-[9px] uppercase font-bold text-yellow-500/70">Gold</span>
-                        <div id="goldVal" class="text-lg font-bold">•••• €</div>
+                    <div class="z-10">
+                        <div id="goldVal" class="text-xl font-bold">•••• €</div>
+                        <div class="text-[8px] text-gray-500 mt-1 uppercase tracking-tighter">Tippen für Details</div>
                     </div>
-                </div>
-                <div class="grad-silver rounded-2xl p-3 relative h-28 flex flex-col justify-between">
-                    <div class="flex justify-between items-start">
-                        <i class="ph-fill ph-coin text-gray-300 text-xl"></i>
-                        <span id="silverPL" class="text-[10px] font-bold text-gray-400">0%</span>
+                    <i class="ph-fill ph-coins absolute -bottom-2 -right-2 text-6xl text-yellow-500/10 z-0"></i>
+                </button>
+                <button onclick="switchView('history', 'silver')" class="card-glass grad-silver p-3 h-32 flex flex-col justify-between relative overflow-hidden text-left">
+                    <div class="flex justify-between items-start z-10">
+                        <span class="text-[9px] uppercase font-black text-gray-400 tracking-wider">Silber</span>
+                        <span id="silverPL" class="text-[9px] font-bold text-gray-500">0%</span>
                     </div>
-                    <div>
-                        <span class="text-[9px] uppercase font-bold text-gray-400">Silber</span>
-                        <div id="silverVal" class="text-lg font-bold">•••• €</div>
+                    <div class="z-10">
+                        <div id="silverVal" class="text-xl font-bold">•••• €</div>
+                        <div class="text-[8px] text-gray-500 mt-1 uppercase tracking-tighter">Tippen für Details</div>
                     </div>
-                </div>
+                    <i class="ph-fill ph-coin absolute -bottom-2 -right-2 text-6xl text-gray-500/10 z-0"></i>
+                </button>
             </div>
-            <div class="grad-etf rounded-2xl p-3 relative h-20 flex items-center justify-between">
-                <div class="flex flex-col justify-center">
-                    <span class="text-[9px] uppercase font-bold text-blue-400">S&P 500 ETF</span>
-                    <div id="etfVal" class="text-xl font-bold">•••• €</div>
+            
+            <button onclick="switchView('history', 'etf')" class="card-glass grad-etf p-3 h-24 flex items-center justify-between relative overflow-hidden text-left">
+                <div class="z-10">
+                    <span class="text-[9px] uppercase font-black text-blue-400 tracking-wider block mb-1">S&P 500 ETF (SXR8)</span>
+                    <div id="etfVal" class="text-2xl font-bold">•••• €</div>
                 </div>
-                <div class="text-right">
-                    <i class="ph-fill ph-chart-line-up text-blue-500 text-xl mb-1 block"></i>
-                    <span id="etfPL" class="text-[10px] font-bold text-gray-400">0%</span>
+                <div class="text-right z-10 flex flex-col items-end">
+                    <span id="etfPL" class="text-xs font-bold bg-gray-900/50 px-2 py-1 rounded mb-1">0%</span>
+                    <span class="text-[8px] text-gray-500 uppercase">Ansehen</span>
                 </div>
-            </div>
+                <i class="ph-fill ph-chart-line-up absolute top-1/2 -translate-y-1/2 right-10 text-6xl text-blue-500/10 z-0"></i>
+            </button>
         </div>
 
         <div class="flex-1"></div>
 
-        <div class="grid grid-cols-2 gap-3 shrink-0 mt-2">
-            <button onclick="openModal()" class="h-12 bg-white text-black rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-transform">
-                <i class="ph-bold ph-plus-circle text-lg"></i> Eintrag
-            </button>
-            <button onclick="switchView('history')" class="h-12 bg-[#1c1c1e] border border-[#333] text-gray-300 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 active:scale-95 transition-transform">
-                <i class="ph-bold ph-list text-lg"></i> Käufe
+        <div class="shrink-0 mt-2 z-20">
+            <button onclick="openModal()" class="w-full h-14 bg-white text-black rounded-2xl text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-transform">
+                <i class="ph-bold ph-plus-circle text-xl"></i> Neuer Kauf eintragen
             </button>
         </div>
         
-        <div class="text-center mt-2 pb-safe">
-            <span id="lastUpdateLabel" class="text-[8px] text-gray-600 font-mono">Stand: --:--</span>
+        <div class="text-center mt-3 pb-safe z-10">
+            <span id="lastUpdateLabel" class="text-[8px] text-gray-700 font-mono">Stand: --:--</span>
         </div>
     </div>
 
+
     <div id="viewHistory" class="view-section bg-black px-4 py-6">
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-bold text-white">Historie</h2>
-            <button onclick="switchView('dashboard')" class="w-8 h-8 rounded-full bg-[#222] flex items-center justify-center text-white"><i class="ph-bold ph-x"></i></button>
+        <div class="flex items-center justify-between mb-6 shrink-0">
+            <div>
+                <h2 id="historyTitle" class="text-2xl font-bold text-white uppercase tracking-tight">Käufe</h2>
+                <p id="historySubtitle" class="text-[10px] text-gray-500 font-bold uppercase tracking-widest"></p>
+            </div>
+            <button onclick="switchView('dashboard')" class="w-10 h-10 rounded-full bg-[#1c1c1e] border border-gray-800 text-white flex items-center justify-center active:scale-90"><i class="ph-bold ph-x"></i></button>
         </div>
-        <div class="flex-1 overflow-y-auto no-scrollbar space-y-2 pb-10" id="historyList">
+        <div class="flex-1 overflow-y-auto no-scrollbar space-y-3 pb-10" id="historyList">
             </div>
     </div>
+
 
     <div id="entryModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4">
         <div class="bg-[#111] border border-[#333] w-full max-w-sm rounded-2xl p-5 shadow-2xl animate-fade-in-up">
             <div class="flex justify-between items-center mb-4">
-                <h3 id="modalTitle" class="text-white font-bold text-sm uppercase">Neuer Eintrag</h3>
-                <button onclick="closeModal()" class="text-gray-500 hover:text-white"><i class="ph-bold ph-x text-lg"></i></button>
+                <h3 id="modalTitle" class="text-white font-bold text-sm uppercase">Kauf Details</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-white"><i class="ph-bold ph-x text-lg"></i></button>
             </div>
-            
             <div class="space-y-3">
                 <div class="grid grid-cols-3 gap-2">
                     <select id="inpCat" onchange="updateUI()" class="col-span-1 h-10 px-2 text-xs font-bold text-center"><option value="gold">Gold</option><option value="silver">Silber</option><option value="etf">ETF</option></select>
                     <input type="text" id="inpProd" placeholder="Name" class="col-span-2 h-10 px-3 text-sm">
                 </div>
-                
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="text-[9px] text-gray-500 uppercase block mb-1">Investiert (€)</label>
+                        <label class="text-[9px] text-yellow-500 uppercase block mb-1">Kaufpreis (€)</label>
                         <input type="number" id="inpAmt" placeholder="0.00" step="0.01" class="w-full h-10 px-3 text-sm font-bold border-yellow-500/50">
                     </div>
                     <div>
-                        <label id="lblWeight" class="text-[9px] text-gray-500 uppercase block mb-1">Menge / Anteile</label>
+                        <label id="lblWeight" class="text-[9px] text-gray-500 uppercase block mb-1">Menge / Gramm</label>
                         <div class="relative">
                             <input type="number" id="inpWgt" placeholder="0.00" step="0.0001" class="w-full h-10 pl-3 pr-8 text-sm">
-                            <button onclick="autoCalcShares()" class="absolute right-0 top-0 h-10 w-8 flex items-center justify-center text-blue-400 hover:text-white">
-                                <i class="ph-fill ph-magic-wand"></i>
-                            </button>
+                            <button onclick="autoCalcShares()" class="absolute right-0 top-0 h-10 w-8 flex items-center justify-center text-blue-400 hover:text-white"><i class="ph-fill ph-magic-wand"></i></button>
                         </div>
                     </div>
                 </div>
-
                 <div class="grid grid-cols-2 gap-2">
-                    <input type="text" id="inpLoc" placeholder="Ort (Optional)" class="h-10 px-3 text-xs">
+                    <input type="text" id="inpLoc" placeholder="Wo gekauft?" class="h-10 px-3 text-xs">
                     <input type="date" id="inpDate" class="h-10 px-2 text-xs text-center">
                 </div>
-                
-                <p class="text-[9px] text-gray-600 text-center leading-tight mt-1">
-                    Tipp: Klicke auf <i class="ph-fill ph-magic-wand text-blue-400"></i>, um Anteile anhand des Datums automatisch zu berechnen.
-                </p>
             </div>
-
-            <div class="mt-5 flex gap-2">
-                <button id="btnDelete" onclick="deleteEntry()" class="hidden w-1/3 h-10 bg-red-900/20 text-red-500 rounded-lg text-xs font-bold border border-red-900/30">Löschen</button>
-                <button onclick="saveEntry()" class="flex-1 h-10 bg-white text-black rounded-lg text-xs font-bold shadow-lg">Speichern</button>
+            <div class="mt-6 flex gap-2">
+                <button id="btnDelete" onclick="deleteEntry()" class="hidden w-1/3 h-11 bg-red-900/20 text-red-500 rounded-xl text-xs font-bold border border-red-900/30">Löschen</button>
+                <button onclick="saveEntry()" class="flex-1 h-11 bg-white text-black rounded-xl text-xs font-bold shadow-lg">Speichern</button>
             </div>
         </div>
     </div>
@@ -186,20 +185,16 @@
     <div id="settingsModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-6">
         <div class="bg-[#111] border border-[#333] w-full max-w-sm rounded-2xl p-5 shadow-2xl">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-white font-bold text-sm uppercase">Einstellungen</h3>
+                <h3 class="text-white font-bold text-sm uppercase">Backup & Markt</h3>
                 <button onclick="closeSettings()" class="text-gray-500 hover:text-white"><i class="ph-bold ph-x text-lg"></i></button>
             </div>
-            
             <div class="space-y-4">
-                <div>
-                    <p class="text-[9px] text-gray-500 uppercase font-bold mb-2">Manuelle Preise (Notfall)</p>
-                    <div class="grid grid-cols-3 gap-2">
-                        <input type="number" id="mGold" placeholder="Gold" class="h-8 text-center text-xs">
-                        <input type="number" id="mSilver" placeholder="Silber" class="h-8 text-center text-xs">
-                        <input type="number" id="mEtf" placeholder="ETF" class="h-8 text-center text-xs">
-                    </div>
-                    <button onclick="saveManualPrices()" class="w-full mt-2 h-8 bg-[#222] text-[10px] uppercase text-gray-300 rounded">Preise Erzwingen</button>
+                <div class="grid grid-cols-3 gap-2">
+                    <input type="number" id="mGold" placeholder="Au €/g" class="h-8 text-center text-[10px]">
+                    <input type="number" id="mSilver" placeholder="Ag €/g" class="h-8 text-center text-[10px]">
+                    <input type="number" id="mEtf" placeholder="ETF €" class="h-8 text-center text-[10px]">
                 </div>
+                <button onclick="saveManualPrices()" class="w-full h-8 bg-blue-900/20 text-blue-400 text-[10px] uppercase font-bold rounded">Kurse manuell setzen</button>
                 <div class="border-t border-[#222]"></div>
                 <div class="flex gap-2">
                     <button onclick="exportBackup()" class="flex-1 h-10 bg-[#222] text-xs text-gray-300 rounded flex items-center justify-center gap-1"><i class="ph-bold ph-download-simple"></i> Sichern</button>
@@ -211,292 +206,147 @@
     </div>
 
     <script>
-        // --- DATA ---
-        let entries = JSON.parse(localStorage.getItem('port_entries')) || [];
-        let prices = JSON.parse(localStorage.getItem('port_prices')) || { gold: 0, silver: 0, etf: 0, lastUpdate: 'Nie' };
+        let entries = JSON.parse(localStorage.getItem('port_v18_data')) || [];
+        if(entries.length === 0 && localStorage.getItem('port_entries_v17')) {
+            entries = JSON.parse(localStorage.getItem('port_entries_v17'));
+        }
+        let prices = JSON.parse(localStorage.getItem('port_v18_prices')) || { gold: 0, silver: 0, etf: 0, lastUpdate: 'Nie' };
         let privacy = false;
         let editId = null;
+        let currentFilter = 'all';
 
-        // --- DOM REFS ---
         const $ = (id) => document.getElementById(id);
-        
-        // --- INIT ---
+
         init();
         function init() {
-            // Restore manual inputs
-            $('mGold').value = prices.gold || ''; $('mSilver').value = prices.silver || ''; $('mEtf').value = prices.etf || '';
+            $('mGold').value = prices.gold ? prices.gold.toFixed(2) : '';
+            $('mSilver').value = prices.silver ? prices.silver.toFixed(2) : '';
+            $('mEtf').value = prices.etf ? prices.etf.toFixed(2) : '';
             render();
-            fetchAllPrices();
+            forceRefresh();
         }
 
-        // --- FETCHING (ROBUST) ---
-        async function fetchAllPrices() {
-            const btn = $('iconRefresh');
-            btn.classList.add('spin-slow');
-            
-            // Helper: Try multiple sources/proxies if one fails
-            const fetchTicker = async (symbol) => {
+        async function forceRefresh() {
+            const btn = $('iconRefresh'); btn.classList.add('spin-slow');
+            const fetchAsset = async (symbol, isMetal) => {
                 const urls = [
-                    `https://api.allorigins.win/get?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d&ts=${Date.now()}`)}`,
+                    `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d&ts=${Date.now()}`)}`,
                     `https://corsproxy.io/?${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`)}`
                 ];
-                
                 for(let u of urls) {
                     try {
-                        const res = await fetch(u);
-                        const data = await res.json();
-                        // Handle AllOrigins wrapper vs raw
-                        const json = data.contents ? JSON.parse(data.contents) : data;
-                        return json.chart.result[0].meta.regularMarketPrice;
-                    } catch(e) { console.log(`Fail ${symbol} on ${u}`); continue; }
+                        const res = await fetch(u); const json = await res.json();
+                        let p = json.chart.result[0].meta.regularMarketPrice;
+                        return isMetal ? p / 31.1034768 : p;
+                    } catch(e) { continue; }
                 }
                 return null;
             };
-
-            const [g, s, e] = await Promise.all([fetchTicker('XAUEUR=X'), fetchTicker('XAGEUR=X'), fetchTicker('SXR8.DE')]);
-            
-            if(g) { prices.gold = g / 31.1034768; $('mGold').value = prices.gold.toFixed(2); }
-            if(s) { prices.silver = s / 31.1034768; $('mSilver').value = prices.silver.toFixed(2); }
-            if(e) { prices.etf = e; $('mEtf').value = prices.etf.toFixed(2); }
-
-            if(g||s||e) {
-                prices.lastUpdate = new Date().toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
-                localStorage.setItem('port_prices', JSON.stringify(prices));
-            }
-            
-            render();
-            btn.classList.remove('spin-slow');
+            const [g, s, e] = await Promise.all([fetchAsset('XAUEUR=X', true), fetchAsset('XAGEUR=X', true), fetchAsset('SXR8.DE', false)]);
+            if(g) { prices.gold = g; $('mGold').value = g.toFixed(2); }
+            if(s) { prices.silver = s; $('mSilver').value = s.toFixed(2); }
+            if(e) { prices.etf = e; $('mEtf').value = e.toFixed(2); }
+            prices.lastUpdate = new Date().toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
+            $('priceTicker').innerText = `Au: ${prices.gold.toFixed(2)}€/g • Ag: ${prices.silver.toFixed(2)}€/g`;
+            localStorage.setItem('port_v18_prices', JSON.stringify(prices));
+            render(); btn.classList.remove('spin-slow');
         }
 
-        // --- ETF MAGIC FIX (HISTORICAL) ---
         async function autoCalcShares() {
-            const amt = parseFloat($('inpAmt').value);
-            const date = $('inpDate').value;
-            const cat = $('inpCat').value;
-            
-            if(!amt || !date) { alert("Bitte erst Preis & Datum eingeben."); return; }
-            
-            let symbol = 'SXR8.DE'; // Default ETF
-            if(cat === 'gold') symbol = 'XAUEUR=X';
-            if(cat === 'silver') symbol = 'XAGEUR=X';
-
+            const amt = parseFloat($('inpAmt').value); const date = $('inpDate').value; const cat = $('inpCat').value;
+            if(!amt || !date) return alert("Daten unvollständig");
             const btn = document.querySelector('.ph-magic-wand').parentElement;
             btn.innerHTML = '<i class="ph-bold ph-spinner spin-slow"></i>';
-            
             try {
-                // Fetch historical close
+                const sym = cat==='etf'?'SXR8.DE':(cat==='gold'?'XAUEUR=X':'XAGEUR=X');
                 const ts = Math.floor(new Date(date).getTime() / 1000);
-                const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?period1=${ts}&period2=${ts+86400}&interval=1d`;
-                const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-                
-                const res = await fetch(proxy);
-                const data = await res.json();
-                const json = JSON.parse(data.contents);
-                const close = json.chart.result[0].indicators.quote[0].close[0];
-                
-                if(close) {
-                    let price = close;
-                    if(cat !== 'etf') price = price / 31.1034768; // Oz to Gram for metals
-                    
-                    const shares = amt / price;
-                    $('inpWgt').value = shares.toFixed(4);
-                    alert(`Kurs am ${date}: ${price.toFixed(2)}€\nBerechnete Anteile: ${shares.toFixed(4)}`);
-                } else {
-                    throw new Error("Kein Kurs");
-                }
-            } catch(e) {
-                const manual = prompt("Historischer Kurs nicht gefunden (Wochenende?).\nBitte Stückzahl manuell eingeben:", "");
-                if(manual) $('inpWgt').value = manual;
-            }
+                const res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${sym}?period1=${ts}&period2=${ts+86400}&interval=1d`)}`);
+                const json = await res.json();
+                let close = json.chart.result[0].indicators.quote[0].close[0];
+                if(cat!=='etf') close = close / 31.1034768;
+                $('inpWgt').value = (amt / close).toFixed(4);
+            } catch(e) { alert("Kurs nicht gefunden"); }
             btn.innerHTML = '<i class="ph-fill ph-magic-wand"></i>';
         }
 
-        // --- RENDER ---
         function render() {
-            let tInv=0, tVal=0, gVal=0, sVal=0, eVal=0;
-            let gInv=0, sInv=0, eInv=0;
-
+            let tInv=0, tVal=0, gVal=0, sVal=0, eVal=0, gInv=0, sInv=0, eInv=0;
             entries.forEach(e => {
                 tInv += e.amount;
-                let p = 0;
-                if(e.category === 'gold') { p = prices.gold; gInv += e.amount; }
-                else if(e.category === 'silver') { p = prices.silver; sInv += e.amount; }
-                else { p = prices.etf; eInv += e.amount; }
-                
-                let val = (p > 0) ? e.weight * p : e.amount; // Fallback to cost if no price
-                
-                if(e.category === 'gold') gVal += val;
-                else if(e.category === 'silver') sVal += val;
-                else eVal += val;
-                
+                let p = (e.category==='gold')?prices.gold:(e.category==='silver'?prices.silver:prices.etf);
+                let val = (p > 0.01) ? (e.weight * p) : e.amount;
+                if(e.category==='gold'){ gVal+=val; gInv+=e.amount; }
+                else if(e.category==='silver'){ sVal+=val; sInv+=e.amount; }
+                else { eVal+=val; eInv+=e.amount; }
                 tVal += val;
             });
-
-            // Main Display
             $('currentValueDisplay').innerText = privacy ? '•••• €' : fmt(tVal);
             const pl = tVal - tInv;
-            const plP = tInv > 0 ? (pl/tInv)*100 : 0;
-            
             $('plDisplay').innerText = privacy ? '•••• €' : (pl>=0?'+':'') + fmt(pl);
-            $('plPercent').innerText = (pl>=0?'+':'') + plP.toFixed(2) + "%";
-            $('plPercent').className = "text-xs font-bold " + (pl>=0 ? "text-green-500" : "text-red-500");
-            
+            $('plPercent').innerText = (tInv>0?((pl/tInv)*100).toFixed(2):'0') + "%";
             $('lastUpdateLabel').innerText = "Stand: " + prices.lastUpdate;
-
-            // Cards
-            updateCard('gold', gVal, gInv);
-            updateCard('silver', sVal, sInv);
-            updateCard('etf', eVal, eInv);
+            updateCard('gold', gVal, gInv); updateCard('silver', sVal, sInv); updateCard('etf', eVal, eInv);
         }
 
         function updateCard(id, curr, inv) {
-            const diff = curr - inv;
-            const pct = inv > 0 ? (diff/inv)*100 : 0;
+            const diff = curr - inv; const pct = inv > 0 ? (diff/inv)*100 : 0;
             $(`${id}Val`).innerText = privacy ? '••••' : fmt0(curr);
             $(`${id}PL`).innerText = (diff>=0?'+':'') + pct.toFixed(1) + "%";
-            $(`${id}PL`).className = "text-[10px] font-bold " + (diff>=0 ? "text-green-500" : "text-red-500");
+            $(`${id}PL`).className = "text-[9px] font-bold " + (diff>=0?"text-green-500":"text-red-500");
         }
 
-        function renderList() {
-            const list = $('historyList');
-            list.innerHTML = '';
+        function renderList(filter) {
+            const l = $('historyList'); l.innerHTML = '';
+            $('historyTitle').innerText = filter === 'all' ? 'Alle Käufe' : filter;
+            $('historySubtitle').innerText = filter === 'etf' ? 'iShares S&P 500 (IE00B5BMR087)' : (filter === 'gold' ? 'Feingold (999.9)' : 'Feinsilber');
             
-            // Group by Date or just list? Minimalist list.
-            const sorted = [...entries].sort((a,b) => new Date(b.date) - new Date(a.date));
-            
-            if(sorted.length === 0) list.innerHTML = '<div class="text-center text-gray-600 mt-10 text-xs">Keine Einträge</div>';
+            const filtered = entries.filter(e => filter === 'all' || e.category === filter)
+                                    .sort((a,b) => new Date(b.date) - new Date(a.date));
 
-            sorted.forEach(e => {
-                let p = (e.category === 'gold') ? prices.gold : (e.category === 'silver' ? prices.silver : prices.etf);
-                const val = (p > 0) ? e.weight * p : e.amount;
-                const pl = val - e.amount;
-                const plP = e.amount > 0 ? (pl/e.amount)*100 : 0;
-                const col = pl >= 0 ? 'text-green-500' : 'text-red-500';
-
-                const item = document.createElement('div');
-                item.className = 'bg-[#111] p-3 rounded-xl border border-[#222] flex items-center justify-between';
-                item.onclick = () => openModal(e.id);
-                
-                item.innerHTML = `
-                    <div>
-                        <div class="font-bold text-sm text-white">${e.product}</div>
-                        <div class="text-[10px] text-gray-500">${new Date(e.date).toLocaleDateString('de-DE')} • ${e.category.toUpperCase()}</div>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-sm font-bold text-gray-300">${privacy ? '•••' : fmt(val)}</div>
-                        <div class="text-[10px] ${col}">${pl>=0?'+':''}${plP.toFixed(1)}%</div>
-                    </div>
-                `;
-                list.appendChild(item);
+            filtered.forEach(e => {
+                let p = (e.category==='gold')?prices.gold:(e.category==='silver'?prices.silver:prices.etf);
+                let val = (p>0.01) ? e.weight*p : e.amount;
+                let pl = val - e.amount; let col = pl>=0?'text-green-500':'text-red-500';
+                let d = document.createElement('div');
+                d.className = 'bg-[#111] p-4 rounded-2xl border border-[#222] flex justify-between items-center active:bg-[#222]';
+                d.onclick = () => openModal(e.id);
+                d.innerHTML = `<div><div class="text-sm font-bold">${e.product}</div><div class="text-[10px] text-gray-500">${new Date(e.date).toLocaleDateString()} • ${e.weight.toFixed(3)} ${e.category==='etf'?'Stk':'g'}</div></div><div class="text-right"><div class="text-sm font-bold text-gray-300">${privacy?'•••':fmt(val)}</div><div class="text-[10px] ${col}">${pl>=0?'+':''}${((pl/e.amount)*100).toFixed(1)}%</div></div>`;
+                l.appendChild(d);
             });
         }
 
-        // --- ACTIONS ---
-        function openModal(id = null) {
-            editId = id;
-            $('entryModal').classList.remove('hidden'); $('entryModal').classList.add('flex');
-            
+        function switchView(v, filter = 'all') {
+            document.querySelectorAll('.view-section').forEach(e=>e.classList.remove('active'));
+            if(v==='history') { $('viewHistory').classList.add('active'); renderList(filter); }
+            else { $('viewDashboard').classList.add('active'); render(); }
+        }
+        function togglePrivacy() { privacy=!privacy; render(); }
+        function openModal(id=null) {
+            editId = id; $('entryModal').classList.remove('hidden'); $('entryModal').classList.add('flex');
             if(id) {
-                const e = entries.find(x => x.id === id);
-                $('modalTitle').innerText = "Bearbeiten";
-                $('btnDelete').classList.remove('hidden');
-                $('inpCat').value = e.category; $('inpProd').value = e.product;
-                $('inpAmt').value = e.amount; $('inpWgt').value = e.weight;
-                $('inpLoc').value = e.location || ''; $('inpDate').value = e.date;
+                const e = entries.find(x=>x.id===id);
+                $('inpCat').value=e.category; $('inpProd').value=e.product; $('inpAmt').value=e.amount; $('inpWgt').value=e.weight; $('inpLoc').value=e.location||''; $('inpDate').value=e.date; $('btnDelete').classList.remove('hidden');
             } else {
-                $('modalTitle').innerText = "Neu";
-                $('btnDelete').classList.add('hidden');
-                $('inpCat').value = 'gold'; $('inpProd').value = '';
-                $('inpAmt').value = ''; $('inpWgt').value = '';
-                $('inpLoc').value = ''; $('inpDate').value = new Date().toISOString().split('T')[0];
+                $('inpCat').value='gold'; $('inpProd').value=''; $('inpAmt').value=''; $('inpWgt').value=''; $('inpLoc').value=''; $('inpDate').value=new Date().toISOString().split('T')[0]; $('btnDelete').classList.add('hidden');
             }
             updateUI();
         }
-        
-        function updateUI() {
-            const cat = $('inpCat').value;
-            $('lblWeight').innerText = cat === 'etf' ? "Anteile (Stück)" : "Gewicht (g)";
-            if(!editId) {
-                if(cat === 'etf') $('inpProd').value = "iShares S&P 500";
-                else $('inpProd').value = "";
-            }
-        }
-
+        function updateUI() { $('lblWeight').innerText = $('inpCat').value === 'etf' ? "Anteile (Stück)" : "Menge (Gramm)"; }
+        function closeModal() { $('entryModal').classList.remove('flex'); $('entryModal').classList.add('hidden'); editId=null; }
         function saveEntry() {
-            const amt = parseFloat($('inpAmt').value);
-            const wgt = parseFloat($('inpWgt').value);
-            const cat = $('inpCat').value;
-            if(!amt) { alert("Betrag fehlt"); return; }
-            if(isNaN(wgt)) { alert("Menge/Anteil fehlt (nutze Zauberstab)"); return; }
-
-            const item = {
-                id: editId || Date.now(),
-                category: cat,
-                product: $('inpProd').value || cat.toUpperCase(),
-                amount: amt,
-                weight: wgt,
-                location: $('inpLoc').value,
-                date: $('inpDate').value
-            };
-
-            if(editId) entries = entries.map(e => e.id === editId ? item : e);
-            else entries.push(item);
-            
-            localStorage.setItem('port_entries', JSON.stringify(entries));
-            closeModal();
-            render();
-            if($('viewHistory').classList.contains('active')) renderList();
+            const amt = parseFloat($('inpAmt').value); const wgt = parseFloat($('inpWgt').value);
+            if(!amt || isNaN(wgt)) return alert("Bitte Werte prüfen");
+            const item = { id: editId || Date.now(), category: $('inpCat').value, product: $('inpProd').value || $('inpCat').value.toUpperCase(), amount: amt, weight: wgt, location: $('inpLoc').value, date: $('inpDate').value };
+            if(editId) entries = entries.map(x => x.id===editId?item:x); else entries.push(item);
+            localStorage.setItem('port_v18_data', JSON.stringify(entries)); closeModal(); render();
+            if($('viewHistory').classList.contains('active')) renderList($('historyTitle').innerText.toLowerCase().includes('gold') ? 'gold' : ($('historyTitle').innerText.toLowerCase().includes('silber') ? 'silver' : 'etf'));
         }
-
-        function deleteEntry() {
-            if(confirm("Löschen?")) {
-                entries = entries.filter(e => e.id !== editId);
-                localStorage.setItem('port_entries', JSON.stringify(entries));
-                closeModal();
-                render();
-                if($('viewHistory').classList.contains('active')) renderList();
-            }
-        }
-
-        // --- SYSTEM ---
-        function switchView(v) {
-            document.querySelectorAll('.view-section').forEach(e => e.classList.remove('active'));
-            if(v === 'history') { $('viewHistory').classList.add('active'); renderList(); }
-            else { $('viewDashboard').classList.add('active'); render(); }
-        }
-        function togglePrivacy() { privacy = !privacy; $('iconPrivacy').className = privacy ? "ph-bold ph-eye-slash text-xl" : "ph-bold ph-eye text-xl"; render(); }
-        function closeModal() { $('entryModal').classList.remove('flex'); $('entryModal').classList.add('hidden'); editId = null; }
+        function deleteEntry() { if(confirm("Löschen?")) { entries = entries.filter(x=>x.id!==editId); localStorage.setItem('port_v18_data', JSON.stringify(entries)); closeModal(); render(); if($('viewHistory').classList.contains('active')) renderList('all'); } }
         function openSettings() { $('settingsModal').classList.remove('hidden'); $('settingsModal').classList.add('flex'); }
         function closeSettings() { $('settingsModal').classList.add('hidden'); $('settingsModal').classList.remove('flex'); }
-        
-        function saveManualPrices() {
-            prices.gold = parseFloat($('mGold').value) || prices.gold;
-            prices.silver = parseFloat($('mSilver').value) || prices.silver;
-            prices.etf = parseFloat($('mEtf').value) || prices.etf;
-            prices.lastUpdate = "Manuell";
-            localStorage.setItem('port_prices', JSON.stringify(prices));
-            render(); closeSettings();
-        }
-
-        function exportBackup() {
-            const a = document.createElement('a');
-            a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({entries, prices}));
-            a.download = "portfolio_backup.json"; a.click();
-        }
-        function importBackup(el) {
-            const r = new FileReader();
-            r.onload = e => {
-                try {
-                    const d = JSON.parse(e.target.result);
-                    if(d.entries) entries = d.entries;
-                    if(d.prices) prices = d.prices;
-                    localStorage.setItem('port_entries', JSON.stringify(entries));
-                    location.reload();
-                } catch(err) { alert("Backup Fehler"); }
-            };
-            if(el.files[0]) r.readAsText(el.files[0]);
-        }
-
+        function saveManualPrices() { prices.gold = parseFloat($('mGold').value); prices.silver = parseFloat($('mSilver').value); prices.etf = parseFloat($('mEtf').value); prices.lastUpdate = "Manuell"; localStorage.setItem('port_v18_prices', JSON.stringify(prices)); render(); closeSettings(); }
+        function exportBackup() { const a = document.createElement('a'); a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({entries, prices})); a.download = "portfolio_backup.json"; a.click(); }
+        function importBackup(el) { const r = new FileReader(); r.onload = e => { const d = JSON.parse(e.target.result); entries = d.entries; prices = d.prices; localStorage.setItem('port_v18_data', JSON.stringify(entries)); location.reload(); }; r.readAsText(el.files[0]); }
         function fmt(n) { return new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR'}).format(n); }
         function fmt0(n) { return new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR', maximumFractionDigits:0}).format(n); }
     </script>
