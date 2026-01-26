@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Portfolio V13</title>
+    <title>Portfolio V15</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -42,7 +42,6 @@
             display: block;
             color-scheme: dark;
         }
-        .bg-card { background: #1c1c1e; }
         
         /* Animations */
         .spin-slow { animation: spin 1s linear infinite; }
@@ -51,13 +50,12 @@
         .fade-in-up { animation: fadeInUp 0.3s ease-out; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Gradients (The Premium Look) */
+        /* Gradients */
         .grad-gold { background: linear-gradient(180deg, rgba(234, 179, 8, 0.15) 0%, rgba(28,28,30,0) 100%); border-top: 1px solid rgba(234, 179, 8, 0.5); }
         .grad-silver { background: linear-gradient(180deg, rgba(209, 213, 219, 0.15) 0%, rgba(28,28,30,0) 100%); border-top: 1px solid rgba(209, 213, 219, 0.5); }
         .grad-etf { background: linear-gradient(180deg, rgba(59, 130, 246, 0.15) 0%, rgba(28,28,30,0) 100%); border-top: 1px solid rgba(59, 130, 246, 0.5); }
         
         .modal-overlay { background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); }
-        
         .view-section { display: none; height: 100%; flex-direction: column; }
         .view-section.active { display: flex; }
     </style>
@@ -147,7 +145,7 @@
             </button>
             
             <button onclick="switchView('history')" class="w-full h-14 bg-[#1c1c1e] border border-gray-800 text-gray-300 rounded-2xl text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 active:bg-gray-800 transition-colors">
-                <i class="ph-bold ph-list-dashes text-lg"></i> Historie / Käufe
+                <i class="ph-bold ph-list-dashes text-lg"></i> Liste aller Käufe
             </button>
         </div>
 
@@ -173,25 +171,43 @@
 
 
     <div id="settingsModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-6">
-        <div class="bg-[#1c1c1e] border border-gray-700 w-full max-w-xs rounded-2xl p-6 shadow-2xl animate-fade-in-up">
+        <div class="bg-[#1c1c1e] border border-gray-700 w-full max-w-sm rounded-2xl p-6 shadow-2xl animate-fade-in-up">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-white font-bold text-sm uppercase tracking-widest">Einstellungen</h3>
                 <button onclick="closeSettings()" class="text-gray-400 hover:text-white"><i class="ph-bold ph-x text-xl"></i></button>
             </div>
 
-            <div class="space-y-3">
-                <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Backup & Sicherheit</p>
-                <button onclick="exportBackup()" class="w-full h-12 bg-gray-800 rounded-xl text-xs font-bold text-gray-300 flex items-center justify-center gap-2 hover:bg-gray-700 transition-colors">
-                    <i class="ph-bold ph-download-simple text-lg"></i> Backup Speichern
-                </button>
-                <button onclick="document.getElementById('importFile').click()" class="w-full h-12 bg-gray-800 rounded-xl text-xs font-bold text-gray-300 flex items-center justify-center gap-2 hover:bg-gray-700 transition-colors">
-                    <i class="ph-bold ph-upload-simple text-lg"></i> Backup Laden
-                </button>
-                <input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(this)">
-                
-                <p class="text-[10px] text-gray-600 text-center mt-4">
-                    Alle Daten bleiben lokal auf deinem Gerät.<br>Kein Cloud-Upload.
-                </p>
+            <div class="space-y-6">
+                <div>
+                    <p class="text-[10px] text-gray-500 uppercase font-bold mb-2">Manuelle Preise (Falls 0%)</p>
+                    <div class="grid grid-cols-3 gap-2">
+                        <div>
+                            <label class="text-[8px] text-yellow-500 uppercase block mb-1">Gold</label>
+                            <input type="number" id="manualGold" onchange="manualPriceUpdate()" class="w-full h-8 bg-black border border-gray-700 rounded text-center text-xs font-bold text-white">
+                        </div>
+                        <div>
+                            <label class="text-[8px] text-gray-400 uppercase block mb-1">Silber</label>
+                            <input type="number" id="manualSilver" onchange="manualPriceUpdate()" class="w-full h-8 bg-black border border-gray-700 rounded text-center text-xs font-bold text-white">
+                        </div>
+                        <div>
+                            <label class="text-[8px] text-blue-500 uppercase block mb-1">ETF</label>
+                            <input type="number" id="manualEtf" onchange="manualPriceUpdate()" class="w-full h-8 bg-black border border-gray-700 rounded text-center text-xs font-bold text-white">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="h-px bg-gray-800 w-full"></div>
+
+                <div class="space-y-2">
+                    <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Backup</p>
+                    <button onclick="exportBackup()" class="w-full h-10 bg-gray-800 rounded-lg text-xs font-bold text-gray-300 flex items-center justify-center gap-2 hover:bg-gray-700 transition-colors">
+                        <i class="ph-bold ph-download-simple"></i> Backup Speichern
+                    </button>
+                    <button onclick="document.getElementById('importFile').click()" class="w-full h-10 bg-gray-800 rounded-lg text-xs font-bold text-gray-300 flex items-center justify-center gap-2 hover:bg-gray-700 transition-colors">
+                        <i class="ph-bold ph-upload-simple"></i> Backup Laden
+                    </button>
+                    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(this)">
+                </div>
             </div>
         </div>
     </div>
@@ -219,16 +235,18 @@
                         <input type="text" id="inpProd" placeholder="Name" class="w-full h-12 rounded-xl px-4 text-sm bg-black border border-gray-800 focus:border-white">
                     </div>
                 </div>
+                
                 <div class="flex gap-3">
                     <div class="w-1/2">
-                        <label class="text-[10px] text-yellow-500 font-bold uppercase mb-1 block">Bezahlt (€)</label>
-                        <input type="number" id="inpAmt" placeholder="0.00" step="0.01" inputmode="decimal" class="w-full h-12 rounded-xl px-4 text-lg font-bold bg-black border border-gray-600 focus:border-yellow-500">
+                        <label class="text-[10px] text-yellow-500 font-bold uppercase mb-1 block">Investiert (€)</label>
+                        <input type="number" id="inpAmt" placeholder="100.00" step="0.01" inputmode="decimal" class="w-full h-12 rounded-xl px-4 text-lg font-bold bg-black border border-gray-600 focus:border-yellow-500">
                     </div>
-                    <div class="w-1/2">
+                    <div class="w-1/2" id="divWeight">
                         <label id="lblWeight" class="text-[10px] text-gray-500 font-bold uppercase mb-1 block">Gewicht (g)</label>
                         <input type="number" id="inpWgt" placeholder="0.00" step="0.01" inputmode="decimal" class="w-full h-12 rounded-xl px-4 text-lg font-medium bg-black border border-gray-800 focus:border-white">
                     </div>
                 </div>
+                
                 <div class="flex gap-3">
                     <div class="w-1/2">
                         <label class="text-[10px] text-gray-500 font-bold uppercase mb-1 block">Ort</label>
@@ -239,25 +257,31 @@
                         <input type="date" id="inpDate" class="w-full h-12 rounded-xl px-2 text-xs text-center font-medium bg-black border border-gray-800 focus:border-white">
                     </div>
                 </div>
+                
+                <p id="etfNote" class="hidden text-[10px] text-blue-400 text-center bg-blue-500/10 p-2 rounded-lg">
+                    ⚡️ Die App berechnet die ETF-Anteile automatisch anhand des Datums.
+                </p>
             </div>
 
             <div class="mt-8 flex gap-3">
                 <button id="btnDelete" onclick="deleteCurrentEntry()" class="hidden w-1/3 h-12 bg-red-500/10 text-red-500 border border-red-500/30 font-bold rounded-xl active:scale-95 transition-transform text-sm">Löschen</button>
-                <button onclick="saveEntry()" class="flex-1 h-12 bg-white text-black font-bold rounded-xl active:scale-95 transition-transform text-sm shadow-lg">Speichern</button>
+                <button id="btnSave" onclick="saveEntry()" class="flex-1 h-12 bg-white text-black font-bold rounded-xl active:scale-95 transition-transform text-sm shadow-lg flex items-center justify-center gap-2">
+                    <span id="btnSaveText">Speichern</span>
+                </button>
             </div>
         </div>
     </div>
 
     <script>
         // CONFIG
-        let entries = JSON.parse(localStorage.getItem('portfolio_entries_v13')) || [];
-        // Migration
+        let entries = JSON.parse(localStorage.getItem('portfolio_entries_v15')) || [];
+        // Migration V14 -> V15
         if(entries.length === 0) {
-            const v12 = JSON.parse(localStorage.getItem('portfolio_entries_v12'));
-            if(v12) { entries = v12; localStorage.setItem('portfolio_entries_v13', JSON.stringify(entries)); }
+            const v14 = JSON.parse(localStorage.getItem('portfolio_entries_v14'));
+            if(v14) { entries = v14; localStorage.setItem('portfolio_entries_v15', JSON.stringify(entries)); }
         }
 
-        let prices = JSON.parse(localStorage.getItem('portfolio_prices_v13')) || { gold: 0, silver: 0, etf: 0, lastUpdate: 'Nie' };
+        let prices = JSON.parse(localStorage.getItem('portfolio_prices_v15')) || { gold: 0, silver: 0, etf: 0, lastUpdate: 'Nie' };
         let isPrivacyMode = false;
         let currentEditId = null;
 
@@ -280,10 +304,20 @@
             inpCat: document.getElementById('inpCat'), inpProd: document.getElementById('inpProd'),
             inpAmt: document.getElementById('inpAmt'), inpWgt: document.getElementById('inpWgt'),
             inpLoc: document.getElementById('inpLoc'), inpDate: document.getElementById('inpDate'),
-            btnDelete: document.getElementById('btnDelete'), lblWeight: document.getElementById('lblWeight')
+            btnDelete: document.getElementById('btnDelete'), lblWeight: document.getElementById('lblWeight'),
+            divWeight: document.getElementById('divWeight'), etfNote: document.getElementById('etfNote'),
+            btnSave: document.getElementById('btnSave'), btnSaveText: document.getElementById('btnSaveText'),
+            // Manual Prices
+            mGold: document.getElementById('manualGold'),
+            mSilver: document.getElementById('manualSilver'),
+            mEtf: document.getElementById('manualEtf')
         };
 
         // INIT
+        els.mGold.value = prices.gold ? prices.gold.toFixed(2) : '';
+        els.mSilver.value = prices.silver ? prices.silver.toFixed(2) : '';
+        els.mEtf.value = prices.etf ? prices.etf.toFixed(2) : '';
+
         render();
         document.addEventListener("DOMContentLoaded", fetchAllPrices);
         document.addEventListener("visibilitychange", () => { if (document.visibilityState === 'visible') fetchAllPrices(); });
@@ -309,15 +343,41 @@
         function openSettings() { els.settingsModal.classList.remove('hidden'); els.settingsModal.classList.add('flex'); }
         function closeSettings() { els.settingsModal.classList.add('hidden'); els.settingsModal.classList.remove('flex'); }
 
-        // FETCHING
+        function manualPriceUpdate() {
+            prices.gold = parseFloat(els.mGold.value) || 0;
+            prices.silver = parseFloat(els.mSilver.value) || 0;
+            prices.etf = parseFloat(els.mEtf.value) || 0;
+            prices.lastUpdate = "Manuell";
+            localStorage.setItem('portfolio_prices_v15', JSON.stringify(prices));
+            render();
+        }
+
+        // --- HISTORICAL FETCHING ---
+        async function getHistoricalPrice(symbol, dateString) {
+            const date = new Date(dateString);
+            const ts = Math.floor(date.getTime() / 1000);
+            // Request 1 day range. Yahoo uses seconds.
+            const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?period1=${ts}&period2=${ts+86400}&interval=1d`;
+            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+            
+            try {
+                const res = await fetch(proxyUrl);
+                const data = await res.json();
+                const json = JSON.parse(data.contents);
+                const result = json.chart.result[0];
+                const closePrice = result.indicators.quote[0].close[0];
+                return closePrice;
+            } catch(e) { console.error(e); return null; }
+        }
+
+        // --- FETCHING CURRENT PRICES ---
         async function fetchAllPrices() {
             const icon = document.getElementById('iconRefresh');
-            icon.classList.add('ph-spinner', 'spin-slow');
-            icon.classList.add('text-blue-400');
+            icon.classList.add('ph-spinner', 'spin-slow', 'text-blue-400');
             
             const fetchSafe = async (symbol) => {
                 try {
-                    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`;
+                    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d&_=${new Date().getTime()}`;
                     const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
                     const res = await fetch(proxyUrl);
                     const data = await res.json();
@@ -330,12 +390,14 @@
                 fetchSafe('XAUEUR=X'), fetchSafe('XAGEUR=X'), fetchSafe('SXR8.DE')
             ]);
 
-            if(g) prices.gold = g / 31.1034768; 
-            if(s) prices.silver = s / 31.1034768;
-            if(e) prices.etf = e;
+            if(g) { prices.gold = g / 31.1034768; els.mGold.value = prices.gold.toFixed(2); }
+            if(s) { prices.silver = s / 31.1034768; els.mSilver.value = prices.silver.toFixed(2); }
+            if(e) { prices.etf = e; els.mEtf.value = prices.etf.toFixed(2); }
 
-            prices.lastUpdate = new Date().toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
-            localStorage.setItem('portfolio_prices_v13', JSON.stringify(prices));
+            if(g || s || e) {
+                prices.lastUpdate = new Date().toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
+                localStorage.setItem('portfolio_prices_v15', JSON.stringify(prices));
+            }
             
             render();
             icon.classList.remove('ph-spinner', 'spin-slow');
@@ -464,6 +526,9 @@
                 els.inpCat.value = e.category; els.inpProd.value = e.product;
                 els.inpAmt.value = e.amount; els.inpWgt.value = e.weight;
                 els.inpLoc.value = e.location || ''; els.inpDate.value = e.date;
+                // Force show weight field in edit mode so user can see what happened
+                els.divWeight.classList.remove('hidden');
+                els.etfNote.classList.add('hidden');
             } else {
                 document.getElementById('modalTitle').innerText = "Neuer Kauf";
                 els.btnDelete.classList.add('hidden');
@@ -477,29 +542,57 @@
         
         function updateModalLabels() {
             if(els.inpCat.value === 'etf') { 
-                els.lblWeight.innerText = "Anzahl (Stk)"; 
-                els.inpWgt.placeholder="2.5";
+                // Smart ETF Mode
+                if(!currentEditId) {
+                    els.divWeight.classList.add('hidden'); // Hide weight input for new ETF
+                    els.etfNote.classList.remove('hidden');
+                }
                 if(els.inpProd.value === '') els.inpProd.value = "iShares S&P 500";
             } else { 
+                els.divWeight.classList.remove('hidden');
+                els.etfNote.classList.add('hidden');
                 els.lblWeight.innerText = "Gewicht (g)"; 
                 els.inpWgt.placeholder="31.1"; 
                 if(els.inpProd.value === "iShares S&P 500") els.inpProd.value = "";
             }
         }
         
-        function saveEntry() {
+        async function saveEntry() {
             const amt = parseFloat(els.inpAmt.value);
-            const wgt = parseFloat(els.inpWgt.value);
-            if(!amt || amt <= 0) { alert("Preis fehlt!"); return; }
-            
             const cat = els.inpCat.value;
+            const dateStr = els.inpDate.value;
+            let wgt = parseFloat(els.inpWgt.value);
+            
+            if(!amt || amt <= 0) { alert("Preis fehlt!"); return; }
+
+            // HISTORICAL CALCULATION LOGIC
+            if(cat === 'etf' && (!wgt || wgt === 0)) {
+                els.btnSaveText.innerText = "Suche Kurs...";
+                els.btnSave.disabled = true;
+                
+                // Try fetch historical price
+                const histPrice = await getHistoricalPrice('SXR8.DE', dateStr);
+                
+                if(histPrice) {
+                    wgt = amt / histPrice; // Calculate Units
+                    alert(`Historischer Kurs gefunden: ${histPrice.toFixed(2)}€\nBerechnete Anteile: ${wgt.toFixed(4)} Stück`);
+                } else {
+                    const manual = prompt("Konnte historischen Kurs nicht finden (Wochenende/Feiertag?).\nBitte Stückzahl manuell eingeben:", "0");
+                    if(!manual) { 
+                         els.btnSaveText.innerText = "Speichern"; els.btnSave.disabled = false; return; 
+                    }
+                    wgt = parseFloat(manual);
+                }
+                els.btnSaveText.innerText = "Speichern"; els.btnSave.disabled = false;
+            }
+
             let prod = els.inpProd.value.trim();
             if(!prod) prod = cat === 'etf' ? "iShares S&P 500" : (cat==='gold'?"Gold":"Silber");
 
             const item = {
                 id: currentEditId || Date.now(),
                 amount: amt, weight: wgt || 0, category: cat,
-                product: prod, location: els.inpLoc.value.trim(), date: els.inpDate.value
+                product: prod, location: els.inpLoc.value.trim(), date: dateStr
             };
 
             if(currentEditId) {
@@ -509,7 +602,7 @@
                 entries.unshift(item);
             }
             entries.sort((a,b) => new Date(b.date) - new Date(a.date));
-            localStorage.setItem('portfolio_entries_v13', JSON.stringify(entries));
+            localStorage.setItem('portfolio_entries_v15', JSON.stringify(entries));
             
             if(document.getElementById('viewHistory').classList.contains('active')) renderList();
             render(); closeModal();
@@ -518,15 +611,14 @@
         function deleteCurrentEntry() {
             if(confirm("Löschen?")) {
                 entries = entries.filter(x => x.id !== currentEditId);
-                localStorage.setItem('portfolio_entries_v13', JSON.stringify(entries));
+                localStorage.setItem('portfolio_entries_v15', JSON.stringify(entries));
                 if(document.getElementById('viewHistory').classList.contains('active')) renderList();
                 render(); closeModal();
             }
         }
         
-        // BACKUP
         function exportBackup() {
-            const d = {entries, prices, version:'v13'};
+            const d = {entries, prices, version:'v15'};
             const a = document.createElement('a');
             a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(d));
             a.download = "portfolio_backup.json"; a.click();
@@ -540,8 +632,8 @@
                 try {
                     const d = JSON.parse(e.target.result);
                     if(confirm("Daten überschreiben?")) {
-                        if(d.entries) { entries = d.entries; localStorage.setItem('portfolio_entries_v13', JSON.stringify(entries)); }
-                        if(d.prices) { prices = d.prices; localStorage.setItem('portfolio_prices_v13', JSON.stringify(prices)); }
+                        if(d.entries) { entries = d.entries; localStorage.setItem('portfolio_entries_v15', JSON.stringify(entries)); }
+                        if(d.prices) { prices = d.prices; localStorage.setItem('portfolio_prices_v15', JSON.stringify(prices)); }
                         location.reload();
                     }
                 } catch(err) { alert("Fehler"); }
