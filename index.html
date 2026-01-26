@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Portfolio V11</title>
+    <title>Portfolio V13</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -48,41 +48,43 @@
         .spin-slow { animation: spin 1s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         
-        .fade-in { animation: fadeIn 0.3s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in-up { animation: fadeInUp 0.3s ease-out; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Gradients */
+        /* Gradients (The Premium Look) */
         .grad-gold { background: linear-gradient(180deg, rgba(234, 179, 8, 0.15) 0%, rgba(28,28,30,0) 100%); border-top: 1px solid rgba(234, 179, 8, 0.5); }
         .grad-silver { background: linear-gradient(180deg, rgba(209, 213, 219, 0.15) 0%, rgba(28,28,30,0) 100%); border-top: 1px solid rgba(209, 213, 219, 0.5); }
         .grad-etf { background: linear-gradient(180deg, rgba(59, 130, 246, 0.15) 0%, rgba(28,28,30,0) 100%); border-top: 1px solid rgba(59, 130, 246, 0.5); }
         
         .modal-overlay { background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); }
         
-        /* View Switching Logic */
         .view-section { display: none; height: 100%; flex-direction: column; }
         .view-section.active { display: flex; }
     </style>
 </head>
-<body class="h-screen overflow-hidden bg-black">
+<body class="h-screen overflow-hidden bg-black text-white">
 
     <div id="viewDashboard" class="view-section active px-4 pt-10 pb-8">
         
-        <div class="flex justify-between items-center mb-4 shrink-0">
-            <button onclick="togglePrivacy()" class="w-10 h-10 rounded-full bg-gray-900 flex items-center justify-center text-gray-400 hover:text-white transition-colors">
+        <div class="flex justify-between items-center mb-6 shrink-0">
+            <button onclick="togglePrivacy()" class="w-10 h-10 rounded-full bg-[#1c1c1e] flex items-center justify-center text-gray-400 hover:text-white transition-colors border border-gray-800">
                 <i id="iconPrivacy" class="ph-bold ph-eye text-xl"></i>
             </button>
-            <div class="flex gap-2">
-                <button onclick="fetchAllPrices()" class="w-10 h-10 rounded-full bg-gray-900 flex items-center justify-center text-blue-400 border border-gray-800 active:scale-90 transition-all">
+            <div class="flex gap-3">
+                <button onclick="fetchAllPrices()" class="w-10 h-10 rounded-full bg-[#1c1c1e] flex items-center justify-center text-blue-400 border border-gray-800 active:scale-90 transition-all">
                     <i id="iconRefresh" class="ph-bold ph-cloud-arrow-down text-xl"></i>
+                </button>
+                <button onclick="openSettings()" class="w-10 h-10 rounded-full bg-[#1c1c1e] flex items-center justify-center text-gray-400 border border-gray-800 hover:text-white active:scale-90 transition-all">
+                    <i class="ph-bold ph-gear text-xl"></i>
                 </button>
             </div>
         </div>
 
         <div class="bg-gray-900 rounded-[32px] p-6 mb-6 border border-gray-800 relative overflow-hidden shadow-2xl shrink-0 flex flex-col justify-center min-h-[180px]">
-            <div id="glow-bg" class="absolute -top-20 -right-20 w-64 h-64 bg-gray-700 rounded-full blur-[90px] opacity-20 pointer-events-none transition-colors duration-700"></div>
+            <div id="glow-bg" class="absolute -top-20 -right-20 w-64 h-64 bg-blue-600 rounded-full blur-[90px] opacity-20 pointer-events-none transition-colors duration-700"></div>
 
             <div class="relative z-10 text-center">
-                <p class="text-gray-500 text-[11px] font-bold uppercase tracking-[0.2em] mb-2">Gesamtvermögen</p>
+                <p class="text-gray-500 text-[10px] font-bold uppercase tracking-[0.2em] mb-2">Gesamtvermögen</p>
                 <h1 id="currentValueDisplay" class="text-5xl font-extrabold tracking-tight text-white mb-4">•••• €</h1>
                 
                 <div class="flex justify-center items-center gap-3">
@@ -97,50 +99,50 @@
             </div>
         </div>
 
-        <div class="flex-1 flex flex-col justify-center mb-6">
-            <div class="grid grid-cols-1 gap-3 h-full max-h-[400px]">
-                <div class="grid grid-cols-2 gap-3 flex-1">
-                    <div class="rounded-3xl p-4 grad-gold relative bg-[#1c1c1e] flex flex-col justify-between">
-                        <div class="flex justify-between items-start">
-                            <div class="bg-yellow-500/10 w-8 h-8 rounded-full flex items-center justify-center text-yellow-500"><i class="ph-fill ph-coins"></i></div>
-                            <span id="goldPL" class="text-[10px] font-bold text-gray-500">0%</span>
-                        </div>
-                        <div>
-                            <p class="text-[10px] font-bold uppercase text-gray-500 mb-1">Gold</p>
-                            <h2 id="goldVal" class="text-xl font-bold text-white">•••• €</h2>
-                        </div>
+        <div class="grid grid-cols-1 gap-3 mb-6">
+            <div class="grid grid-cols-2 gap-3">
+                <div class="rounded-3xl p-4 grad-gold relative bg-[#1c1c1e] flex flex-col justify-between h-32">
+                    <div class="flex justify-between items-start">
+                        <div class="bg-yellow-500/10 w-8 h-8 rounded-full flex items-center justify-center text-yellow-500"><i class="ph-fill ph-coins"></i></div>
+                        <span id="goldPL" class="text-[10px] font-bold text-gray-500">0%</span>
                     </div>
-
-                    <div class="rounded-3xl p-4 grad-silver relative bg-[#1c1c1e] flex flex-col justify-between">
-                        <div class="flex justify-between items-start">
-                            <div class="bg-gray-500/10 w-8 h-8 rounded-full flex items-center justify-center text-gray-300"><i class="ph-fill ph-coin"></i></div>
-                            <span id="silverPL" class="text-[10px] font-bold text-gray-500">0%</span>
-                        </div>
-                        <div>
-                            <p class="text-[10px] font-bold uppercase text-gray-500 mb-1">Silber</p>
-                            <h2 id="silverVal" class="text-xl font-bold text-white">•••• €</h2>
-                        </div>
+                    <div>
+                        <p class="text-[10px] font-bold uppercase text-gray-500 mb-0.5">Gold</p>
+                        <h2 id="goldVal" class="text-lg font-bold text-white">•••• €</h2>
                     </div>
                 </div>
 
-                <div class="rounded-3xl p-5 grad-etf relative bg-[#1c1c1e] flex items-center justify-between flex-1 max-h-[140px]">
-                    <div class="flex flex-col justify-between h-full">
-                        <div class="bg-blue-500/10 w-8 h-8 rounded-full flex items-center justify-center text-blue-500 mb-2"><i class="ph-fill ph-chart-line-up"></i></div>
-                        <div>
-                            <p class="text-[10px] font-bold uppercase text-gray-500">iShares S&P 500</p>
-                            <h2 id="etfVal" class="text-2xl font-bold text-white mt-1">•••• €</h2>
-                        </div>
+                <div class="rounded-3xl p-4 grad-silver relative bg-[#1c1c1e] flex flex-col justify-between h-32">
+                    <div class="flex justify-between items-start">
+                        <div class="bg-gray-500/10 w-8 h-8 rounded-full flex items-center justify-center text-gray-300"><i class="ph-fill ph-coin"></i></div>
+                        <span id="silverPL" class="text-[10px] font-bold text-gray-500">0%</span>
                     </div>
-                    <div class="text-right flex flex-col justify-between h-full py-1">
-                        <span id="etfPL" class="text-sm font-bold text-gray-500 bg-gray-800/50 px-2 py-1 rounded-lg">0%</span>
-                        <p class="text-[9px] text-gray-600 font-mono">IE00B5BMR087</p>
+                    <div>
+                        <p class="text-[10px] font-bold uppercase text-gray-500 mb-0.5">Silber</p>
+                        <h2 id="silverVal" class="text-lg font-bold text-white">•••• €</h2>
                     </div>
+                </div>
+            </div>
+
+            <div class="rounded-3xl p-4 grad-etf relative bg-[#1c1c1e] flex items-center justify-between h-24">
+                <div class="flex flex-col justify-between h-full">
+                    <div class="bg-blue-500/10 w-8 h-8 rounded-full flex items-center justify-center text-blue-500 mb-2"><i class="ph-fill ph-chart-line-up"></i></div>
+                    <div>
+                        <p class="text-[10px] font-bold uppercase text-gray-500">iShares S&P 500</p>
+                        <h2 id="etfVal" class="text-xl font-bold text-white mt-0.5">•••• €</h2>
+                    </div>
+                </div>
+                <div class="text-right flex flex-col justify-between h-full py-1">
+                    <span id="etfPL" class="text-xs font-bold text-gray-500 bg-gray-800/50 px-2 py-1 rounded-lg">0%</span>
+                    <p class="text-[9px] text-gray-600 font-mono">IE00B5BMR087</p>
                 </div>
             </div>
         </div>
 
-        <div class="mt-auto space-y-3 shrink-0">
-            <button onclick="openModal()" class="w-full h-14 bg-white text-black rounded-2xl text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 active:scale-95 transition-transform shadow-xl">
+        <div class="flex-1"></div>
+
+        <div class="space-y-3 shrink-0">
+            <button onclick="openModal()" class="w-full h-14 bg-white text-black rounded-2xl text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 active:scale-95 transition-transform shadow-xl shadow-white/5">
                 <i class="ph-bold ph-plus-circle text-lg"></i> Kauf eintragen
             </button>
             
@@ -149,16 +151,15 @@
             </button>
         </div>
 
-        <div class="mt-4 flex justify-center pb-safe">
+        <div class="mt-4 text-center pb-safe">
              <span id="lastUpdateLabel" class="text-[9px] text-gray-700 font-mono">Stand: --:--</span>
         </div>
     </div>
 
 
     <div id="viewHistory" class="view-section px-4 pt-10 pb-8 bg-black">
-        
         <div class="flex items-center justify-between mb-6 shrink-0">
-            <h2 class="text-2xl font-bold text-white">Transaktionen</h2>
+            <h2 class="text-2xl font-bold text-white">Deine Käufe</h2>
             <button onclick="switchView('dashboard')" class="w-10 h-10 rounded-full bg-gray-900 border border-gray-800 flex items-center justify-center text-white active:scale-90">
                 <i class="ph-bold ph-x text-lg"></i>
             </button>
@@ -168,12 +169,29 @@
             <div id="historyList" class="overflow-y-auto no-scrollbar p-4 space-y-3">
                 </div>
         </div>
+    </div>
 
-        <div class="mt-4 shrink-0 flex justify-between px-2">
-            <div class="flex gap-4">
-                 <button onclick="exportBackup()" class="flex items-center gap-1.5 text-[10px] font-bold text-gray-500 hover:text-white uppercase"><i class="ph-bold ph-download-simple"></i> Backup</button>
-                 <button onclick="document.getElementById('importFile').click()" class="flex items-center gap-1.5 text-[10px] font-bold text-gray-500 hover:text-white uppercase"><i class="ph-bold ph-upload-simple"></i> Laden</button>
-                 <input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(this)">
+
+    <div id="settingsModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-6">
+        <div class="bg-[#1c1c1e] border border-gray-700 w-full max-w-xs rounded-2xl p-6 shadow-2xl animate-fade-in-up">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-white font-bold text-sm uppercase tracking-widest">Einstellungen</h3>
+                <button onclick="closeSettings()" class="text-gray-400 hover:text-white"><i class="ph-bold ph-x text-xl"></i></button>
+            </div>
+
+            <div class="space-y-3">
+                <p class="text-[10px] text-gray-500 uppercase font-bold mb-1">Backup & Sicherheit</p>
+                <button onclick="exportBackup()" class="w-full h-12 bg-gray-800 rounded-xl text-xs font-bold text-gray-300 flex items-center justify-center gap-2 hover:bg-gray-700 transition-colors">
+                    <i class="ph-bold ph-download-simple text-lg"></i> Backup Speichern
+                </button>
+                <button onclick="document.getElementById('importFile').click()" class="w-full h-12 bg-gray-800 rounded-xl text-xs font-bold text-gray-300 flex items-center justify-center gap-2 hover:bg-gray-700 transition-colors">
+                    <i class="ph-bold ph-upload-simple text-lg"></i> Backup Laden
+                </button>
+                <input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(this)">
+                
+                <p class="text-[10px] text-gray-600 text-center mt-4">
+                    Alle Daten bleiben lokal auf deinem Gerät.<br>Kein Cloud-Upload.
+                </p>
             </div>
         </div>
     </div>
@@ -185,11 +203,12 @@
                 <h3 id="modalTitle" class="text-white font-bold text-xl">Eintrag</h3>
                 <button onclick="closeModal()" class="text-gray-400 hover:text-white"><i class="ph-bold ph-x text-xl"></i></button>
             </div>
+            
             <div class="space-y-4">
                 <div class="flex gap-3">
                     <div class="w-1/3">
                         <label class="text-[10px] text-gray-500 font-bold uppercase mb-1 block">Typ</label>
-                        <select id="inpCat" onchange="updateModalLabels()" class="w-full h-12 rounded-xl px-2 text-sm font-bold text-center bg-black border-gray-800">
+                        <select id="inpCat" onchange="updateModalLabels()" class="w-full h-12 rounded-xl px-2 text-sm font-bold text-center bg-black border border-gray-800 focus:border-white">
                             <option value="gold">Gold</option>
                             <option value="silver">Silber</option>
                             <option value="etf">ETF</option>
@@ -197,30 +216,31 @@
                     </div>
                     <div class="w-2/3">
                         <label class="text-[10px] text-gray-500 font-bold uppercase mb-1 block">Produkt</label>
-                        <input type="text" id="inpProd" placeholder="Name" class="w-full h-12 rounded-xl px-4 text-sm bg-black border-gray-800">
+                        <input type="text" id="inpProd" placeholder="Name" class="w-full h-12 rounded-xl px-4 text-sm bg-black border border-gray-800 focus:border-white">
                     </div>
                 </div>
                 <div class="flex gap-3">
                     <div class="w-1/2">
                         <label class="text-[10px] text-yellow-500 font-bold uppercase mb-1 block">Bezahlt (€)</label>
-                        <input type="number" id="inpAmt" placeholder="0.00" step="0.01" inputmode="decimal" class="w-full h-12 rounded-xl px-4 text-lg font-bold bg-black border-gray-600 focus:border-yellow-500">
+                        <input type="number" id="inpAmt" placeholder="0.00" step="0.01" inputmode="decimal" class="w-full h-12 rounded-xl px-4 text-lg font-bold bg-black border border-gray-600 focus:border-yellow-500">
                     </div>
                     <div class="w-1/2">
                         <label id="lblWeight" class="text-[10px] text-gray-500 font-bold uppercase mb-1 block">Gewicht (g)</label>
-                        <input type="number" id="inpWgt" placeholder="0.00" step="0.01" inputmode="decimal" class="w-full h-12 rounded-xl px-4 text-lg font-medium bg-black border-gray-800">
+                        <input type="number" id="inpWgt" placeholder="0.00" step="0.01" inputmode="decimal" class="w-full h-12 rounded-xl px-4 text-lg font-medium bg-black border border-gray-800 focus:border-white">
                     </div>
                 </div>
                 <div class="flex gap-3">
                     <div class="w-1/2">
-                        <label class="text-[10px] text-gray-500 font-bold uppercase mb-1 block">Wo gekauft?</label>
-                        <input type="text" id="inpLoc" placeholder="Händler/Ort" class="w-full h-12 rounded-xl px-4 text-sm bg-black border-gray-800">
+                        <label class="text-[10px] text-gray-500 font-bold uppercase mb-1 block">Ort</label>
+                        <input type="text" id="inpLoc" placeholder="Händler" class="w-full h-12 rounded-xl px-4 text-sm bg-black border border-gray-800 focus:border-white">
                     </div>
                     <div class="w-1/2">
                         <label class="text-[10px] text-gray-500 font-bold uppercase mb-1 block">Datum</label>
-                        <input type="date" id="inpDate" class="w-full h-12 rounded-xl px-2 text-xs text-center font-medium bg-black border-gray-800">
+                        <input type="date" id="inpDate" class="w-full h-12 rounded-xl px-2 text-xs text-center font-medium bg-black border border-gray-800 focus:border-white">
                     </div>
                 </div>
             </div>
+
             <div class="mt-8 flex gap-3">
                 <button id="btnDelete" onclick="deleteCurrentEntry()" class="hidden w-1/3 h-12 bg-red-500/10 text-red-500 border border-red-500/30 font-bold rounded-xl active:scale-95 transition-transform text-sm">Löschen</button>
                 <button onclick="saveEntry()" class="flex-1 h-12 bg-white text-black font-bold rounded-xl active:scale-95 transition-transform text-sm shadow-lg">Speichern</button>
@@ -229,19 +249,19 @@
     </div>
 
     <script>
-        // --- CONFIG & STATE ---
-        let entries = JSON.parse(localStorage.getItem('portfolio_entries_v11')) || [];
-        // Migration V10 -> V11
+        // CONFIG
+        let entries = JSON.parse(localStorage.getItem('portfolio_entries_v13')) || [];
+        // Migration
         if(entries.length === 0) {
-            const v10 = JSON.parse(localStorage.getItem('portfolio_entries_v10'));
-            if(v10) { entries = v10; localStorage.setItem('portfolio_entries_v11', JSON.stringify(entries)); }
+            const v12 = JSON.parse(localStorage.getItem('portfolio_entries_v12'));
+            if(v12) { entries = v12; localStorage.setItem('portfolio_entries_v13', JSON.stringify(entries)); }
         }
 
-        let prices = JSON.parse(localStorage.getItem('portfolio_prices_v11')) || { gold: 0, silver: 0, etf: 0, lastUpdate: 'Nie' };
+        let prices = JSON.parse(localStorage.getItem('portfolio_prices_v13')) || { gold: 0, silver: 0, etf: 0, lastUpdate: 'Nie' };
         let isPrivacyMode = false;
         let currentEditId = null;
 
-        // UI References
+        // UI Refs
         const els = {
             totalVal: document.getElementById('currentValueDisplay'),
             plDisplay: document.getElementById('plDisplay'),
@@ -254,41 +274,46 @@
             etfVal: document.getElementById('etfVal'), etfPL: document.getElementById('etfPL'),
             lastUpdate: document.getElementById('lastUpdateLabel'),
             iconPrivacy: document.getElementById('iconPrivacy'),
-            // Modal
+            // Modals
             modal: document.getElementById('entryModal'),
+            settingsModal: document.getElementById('settingsModal'),
             inpCat: document.getElementById('inpCat'), inpProd: document.getElementById('inpProd'),
             inpAmt: document.getElementById('inpAmt'), inpWgt: document.getElementById('inpWgt'),
             inpLoc: document.getElementById('inpLoc'), inpDate: document.getElementById('inpDate'),
             btnDelete: document.getElementById('btnDelete'), lblWeight: document.getElementById('lblWeight')
         };
 
-        // --- INIT ---
+        // INIT
         render();
         document.addEventListener("DOMContentLoaded", fetchAllPrices);
         document.addEventListener("visibilitychange", () => { if (document.visibilityState === 'visible') fetchAllPrices(); });
 
-        // --- VIEW SWITCHING ---
+        // VIEW LOGIC
         function switchView(viewName) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             if(viewName === 'history') {
                 document.getElementById('viewHistory').classList.add('active');
-                renderList(); // Render list only when needed
+                renderList();
             } else {
                 document.getElementById('viewDashboard').classList.add('active');
+                render();
             }
         }
-
-        // --- PRIVACY MODE ---
+        
         function togglePrivacy() {
             isPrivacyMode = !isPrivacyMode;
             els.iconPrivacy.className = isPrivacyMode ? "ph-bold ph-eye-slash text-xl" : "ph-bold ph-eye text-xl";
             render(); 
         }
 
-        // --- FETCHING ---
+        function openSettings() { els.settingsModal.classList.remove('hidden'); els.settingsModal.classList.add('flex'); }
+        function closeSettings() { els.settingsModal.classList.add('hidden'); els.settingsModal.classList.remove('flex'); }
+
+        // FETCHING
         async function fetchAllPrices() {
             const icon = document.getElementById('iconRefresh');
-            icon.classList.add('ph-spinner', 'spin-slow', 'text-blue-400');
+            icon.classList.add('ph-spinner', 'spin-slow');
+            icon.classList.add('text-blue-400');
             
             const fetchSafe = async (symbol) => {
                 try {
@@ -298,7 +323,7 @@
                     const data = await res.json();
                     if(!data.contents) return null;
                     return JSON.parse(data.contents).chart.result[0].meta.regularMarketPrice;
-                } catch(e) { console.error(symbol, e); return null; }
+                } catch(e) { return null; }
             };
 
             const [g, s, e] = await Promise.all([
@@ -309,27 +334,21 @@
             if(s) prices.silver = s / 31.1034768;
             if(e) prices.etf = e;
 
-            const now = new Date();
-            prices.lastUpdate = now.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
-            localStorage.setItem('portfolio_prices_v11', JSON.stringify(prices));
+            prices.lastUpdate = new Date().toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
+            localStorage.setItem('portfolio_prices_v13', JSON.stringify(prices));
             
             render();
-
             icon.classList.remove('ph-spinner', 'spin-slow');
             icon.classList.add('ph-check', 'text-green-500');
-            setTimeout(() => { icon.classList.remove('ph-check', 'text-green-500'); }, 2000);
+            setTimeout(() => { icon.classList.remove('ph-check', 'text-green-500'); icon.classList.remove('text-blue-400'); }, 2000);
         }
 
-        // --- RENDER DASHBOARD ---
+        // RENDER DASHBOARD
         function render() {
-            let tInv=0, tVal=0;
-            let gInv=0, gVal=0; 
-            let sInv=0, sVal=0;
-            let eInv=0, eVal=0;
+            let tInv=0, tVal=0, gInv=0, gVal=0, sInv=0, sVal=0, eInv=0, eVal=0;
 
-            if(entries.length === 0) {
-                els.sinceDate.innerText = "Willkommen";
-            } else {
+            if(entries.length === 0) els.sinceDate.innerText = "Keine Daten";
+            else {
                 const sorted = [...entries].sort((a,b) => new Date(a.date) - new Date(b.date));
                 els.sinceDate.innerText = "Seit " + new Date(sorted[0].date).toLocaleDateString('de-DE');
             }
@@ -337,21 +356,19 @@
 
             entries.forEach(e => {
                 tInv += e.amount;
-                let val = 0;
                 let p = 0;
-                if(e.category === 'gold') { p = prices.gold; gInv += e.amount; }
-                else if(e.category === 'silver') { p = prices.silver; sInv += e.amount; }
-                else if(e.category === 'etf') { p = prices.etf; eInv += e.amount; }
-
-                val = (p > 0) ? e.weight * p : e.amount;
+                if(e.category === 'gold') p = prices.gold;
+                else if(e.category === 'silver') p = prices.silver;
+                else p = prices.etf;
                 
-                if(e.category === 'gold') gVal += val;
-                else if(e.category === 'silver') sVal += val;
-                else if(e.category === 'etf') eVal += val;
+                let val = (p > 0) ? e.weight * p : e.amount;
+                
+                if(e.category === 'gold') { gVal += val; gInv += e.amount; }
+                else if(e.category === 'silver') { sVal += val; sInv += e.amount; }
+                else if(e.category === 'etf') { eVal += val; eInv += e.amount; }
                 tVal += val;
             });
 
-            // Total
             els.totalVal.innerText = fmt(tVal);
             const totalPL = tVal - tInv;
             const totalPLP = tInv > 0 ? (totalPL/tInv)*100 : 0;
@@ -371,13 +388,12 @@
                 document.getElementById('glow-bg').className = "absolute -top-20 -right-20 w-64 h-64 bg-red-500 rounded-full blur-[90px] opacity-20 pointer-events-none transition-colors duration-700";
             }
 
-            // Cards
             updateCard(els.goldVal, els.goldPL, gVal, gInv);
             updateCard(els.silverVal, els.silverPL, sVal, sInv);
             updateCard(els.etfVal, els.etfPL, eVal, eInv);
         }
 
-        // --- RENDER LIST (Only when view is active) ---
+        // RENDER LIST
         function renderList() {
             els.list.innerHTML = '';
             if(entries.length === 0) {
@@ -396,12 +412,10 @@
                 const plP = e.amount > 0 ? (pl/e.amount)*100 : 0;
                 const col = pl >= 0 ? 'text-green-500' : 'text-red-500';
                 
+                const dateStr = new Date(e.date).toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit', year:'2-digit'});
                 let icon = 'ph-coins'; let iconCol = 'text-yellow-500';
                 if(e.category === 'silver') { icon = 'ph-coin'; iconCol = 'text-gray-300'; }
                 if(e.category === 'etf') { icon = 'ph-chart-line-up'; iconCol = 'text-blue-500'; }
-
-                const dateStr = new Date(e.date).toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit', year:'2-digit'});
-                const locStr = e.location ? `<span class="flex items-center gap-1"><i class="ph-fill ph-map-pin text-[10px]"></i> ${e.location}</span>` : '';
 
                 const el = document.createElement('div');
                 el.onclick = () => openModal(e.id);
@@ -418,7 +432,7 @@
                         <div class="flex justify-between items-center text-[11px] text-gray-500">
                             <div class="flex items-center gap-3">
                                 <span>${dateStr}</span>
-                                ${locStr}
+                                ${e.location ? `<span>• ${e.location}</span>` : ''}
                             </div>
                             <div class="flex items-center gap-2">
                                 <span class="text-gray-600">${isPrivacyMode ? '•••• €' : fmt0(e.amount)}</span>
@@ -439,7 +453,7 @@
             elPL.className = diff >= 0 ? "text-[10px] font-black text-green-500" : "text-[10px] font-black text-red-500";
         }
 
-        // --- ACTIONS ---
+        // ACTIONS
         function openModal(id = null) {
             currentEditId = id;
             els.modal.classList.remove('hidden'); els.modal.classList.add('flex');
@@ -495,27 +509,29 @@
                 entries.unshift(item);
             }
             entries.sort((a,b) => new Date(b.date) - new Date(a.date));
-            localStorage.setItem('portfolio_entries_v11', JSON.stringify(entries));
+            localStorage.setItem('portfolio_entries_v13', JSON.stringify(entries));
             
-            // Refresh logic
             if(document.getElementById('viewHistory').classList.contains('active')) renderList();
-            render(); 
-            closeModal();
+            render(); closeModal();
         }
+        
         function deleteCurrentEntry() {
             if(confirm("Löschen?")) {
                 entries = entries.filter(x => x.id !== currentEditId);
-                localStorage.setItem('portfolio_entries_v11', JSON.stringify(entries));
+                localStorage.setItem('portfolio_entries_v13', JSON.stringify(entries));
                 if(document.getElementById('viewHistory').classList.contains('active')) renderList();
                 render(); closeModal();
             }
         }
+        
+        // BACKUP
         function exportBackup() {
-            const d = {entries, prices, version:'v11'};
+            const d = {entries, prices, version:'v13'};
             const a = document.createElement('a');
             a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(d));
             a.download = "portfolio_backup.json"; a.click();
         }
+        
         function importBackup(inp) {
             const f = inp.files[0];
             if(!f) return;
@@ -524,16 +540,16 @@
                 try {
                     const d = JSON.parse(e.target.result);
                     if(confirm("Daten überschreiben?")) {
-                        if(d.entries) entries = d.entries;
-                        if(d.prices) prices = d.prices;
-                        localStorage.setItem('portfolio_entries_v11', JSON.stringify(entries));
-                        localStorage.setItem('portfolio_prices_v11', JSON.stringify(prices));
+                        if(d.entries) { entries = d.entries; localStorage.setItem('portfolio_entries_v13', JSON.stringify(entries)); }
+                        if(d.prices) { prices = d.prices; localStorage.setItem('portfolio_prices_v13', JSON.stringify(prices)); }
                         location.reload();
                     }
                 } catch(err) { alert("Fehler"); }
             };
             r.readAsText(f);
+            closeSettings();
         }
+        
         function fmt(n) { return isPrivacyMode ? '•••• €' : new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR'}).format(n); }
         function fmt0(n) { return new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR', maximumFractionDigits:0}).format(n); }
     </script>
