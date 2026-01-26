@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Portfolio V8</title>
+    <title>Portfolio V10</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -20,9 +20,8 @@
             background-color: #000000;
             color: #ffffff;
             -webkit-tap-highlight-color: transparent;
-            overscroll-behavior-y: none; /* Prevents rubber-banding on iOS */
+            overscroll-behavior-y: none;
         }
-
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -38,49 +37,46 @@
             border-color: #4ade80;
             background: #252527;
         }
-        /* Fix iOS Date input style */
         input[type="date"] {
             min-height: 40px;
             display: block;
             color-scheme: dark;
         }
-
         .bg-card { background: #1c1c1e; }
         
         /* Animations */
         .spin-slow { animation: spin 1s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* Gradients for the 3 Columns */
+        /* Gradients */
         .grad-gold { background: linear-gradient(180deg, rgba(234, 179, 8, 0.15) 0%, rgba(28,28,30,0) 100%); border-top: 2px solid rgba(234, 179, 8, 0.5); }
         .grad-silver { background: linear-gradient(180deg, rgba(209, 213, 219, 0.15) 0%, rgba(28,28,30,0) 100%); border-top: 2px solid rgba(209, 213, 219, 0.5); }
         .grad-etf { background: linear-gradient(180deg, rgba(59, 130, 246, 0.15) 0%, rgba(28,28,30,0) 100%); border-top: 2px solid rgba(59, 130, 246, 0.5); }
         
-        /* Modal Overlay */
         .modal-overlay { background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); }
     </style>
 </head>
 <body class="h-screen flex flex-col px-4 pt-10 pb-8 bg-black">
 
     <div class="bg-gray-900 rounded-3xl p-5 mb-4 border border-gray-800 relative overflow-hidden shadow-2xl shrink-0">
-        <div id="glow-bg" class="absolute -top-10 -right-10 w-48 h-48 bg-blue-600 rounded-full blur-[80px] opacity-20 pointer-events-none transition-colors duration-700"></div>
+        <div id="glow-bg" class="absolute -top-10 -right-10 w-48 h-48 bg-gray-700 rounded-full blur-[80px] opacity-20 pointer-events-none transition-colors duration-700"></div>
 
         <div class="flex justify-between items-start relative z-10">
             <div>
                 <p class="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-1">Gesamtvermögen</p>
                 <h1 id="currentValueDisplay" class="text-4xl font-extrabold tracking-tight text-white">0,00 €</h1>
             </div>
-            <button onclick="fetchLivePrices()" id="btnRefresh" class="bg-gray-800/80 p-2 rounded-full text-blue-400 border border-gray-700 active:scale-90 transition-all">
+            <button onclick="fetchAllPrices()" id="btnRefresh" class="bg-gray-800/80 p-2 rounded-full text-blue-400 border border-gray-700 active:scale-90 transition-all">
                 <i id="iconRefresh" class="ph-bold ph-cloud-arrow-down text-xl"></i>
             </button>
         </div>
         
         <div class="flex items-center gap-3 relative z-10 mt-3">
-            <div id="plContainer" class="bg-gray-800/50 px-3 py-1 rounded-lg border border-gray-700 flex items-center gap-2">
+            <div id="plContainer" class="bg-gray-800/50 px-3 py-1 rounded-lg border border-gray-700 flex items-center gap-2 transition-colors">
                 <span id="plDisplay" class="text-sm font-bold text-gray-300">0,00 €</span>
                 <span id="plPercent" class="text-[10px] font-bold text-gray-500 bg-black/30 px-1.5 py-0.5 rounded">0%</span>
             </div>
-            <span class="text-[9px] text-gray-600 font-bold uppercase tracking-wider">Performance</span>
+            <span id="sinceDateLabel" class="text-[9px] text-gray-600 font-bold uppercase tracking-wider">Seit Beginn</span>
         </div>
     </div>
 
@@ -101,7 +97,8 @@
 
         <div class="rounded-xl p-2.5 grad-etf relative bg-[#1c1c1e] text-center">
             <div class="text-blue-500 text-xl mb-1"><i class="ph-fill ph-chart-line-up"></i></div>
-            <p class="text-[9px] font-bold uppercase text-gray-500">ETF</p>
+            <p class="text-[9px] font-bold uppercase text-gray-500">iShares S&P 500</p>
+            <p class="text-[7px] text-gray-600 font-mono mb-0.5">IE00B5BMR087</p>
             <h2 id="etfVal" class="text-sm font-bold text-white my-0.5">0 €</h2>
             <span id="etfPL" class="text-[9px] font-bold text-gray-600">0%</span>
         </div>
@@ -114,7 +111,7 @@
     </div>
 
     <div class="flex-1 overflow-hidden flex flex-col mb-2">
-        <h3 class="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-2 ml-1">Transaktionen (Neueste zuerst)</h3>
+        <h3 class="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-2 ml-1">Transaktionen</h3>
         <div id="historyList" class="overflow-y-auto no-scrollbar pb-20 space-y-2.5">
             </div>
     </div>
@@ -126,18 +123,16 @@
                  <button onclick="document.getElementById('importFile').click()" class="flex items-center gap-1 text-[10px] font-bold text-gray-600 hover:text-white uppercase"><i class="ph-bold ph-upload-simple"></i> Laden</button>
                  <input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(this)">
             </div>
-            <span id="lastUpdateLabel" class="text-[9px] text-gray-700 font-mono">Offline</span>
+            <span id="lastUpdateLabel" class="text-[9px] text-gray-700 font-mono">Warte auf Kurse...</span>
         </div>
     </div>
 
     <div id="entryModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-end sm:items-center justify-center p-4">
         <div class="bg-[#1c1c1e] w-full max-w-sm rounded-2xl border border-gray-700 shadow-2xl p-5 animate-fade-in-up">
-            
             <div class="flex justify-between items-center mb-5">
-                <h3 id="modalTitle" class="text-white font-bold text-lg">Neuer Eintrag</h3>
+                <h3 id="modalTitle" class="text-white font-bold text-lg">Eintrag</h3>
                 <button onclick="closeModal()" class="text-gray-400 hover:text-white"><i class="ph-bold ph-x text-xl"></i></button>
             </div>
-
             <div class="space-y-3">
                 <div class="flex gap-3">
                     <div class="w-1/3">
@@ -149,11 +144,10 @@
                         </select>
                     </div>
                     <div class="w-2/3">
-                        <label class="text-[10px] text-gray-500 font-bold uppercase">Produkt Name</label>
-                        <input type="text" id="inpProd" placeholder="z.B. Maple Leaf" class="w-full h-10 rounded-lg px-3 text-sm mt-1">
+                        <label class="text-[10px] text-gray-500 font-bold uppercase">Produkt</label>
+                        <input type="text" id="inpProd" placeholder="Name" class="w-full h-10 rounded-lg px-3 text-sm mt-1">
                     </div>
                 </div>
-
                 <div class="flex gap-3">
                     <div class="w-1/2">
                         <label class="text-[10px] text-yellow-500 font-bold uppercase">Bezahlt (€)</label>
@@ -164,295 +158,167 @@
                         <input type="number" id="inpWgt" placeholder="0.00" step="0.01" inputmode="decimal" class="w-full h-10 rounded-lg px-3 text-base font-medium mt-1">
                     </div>
                 </div>
-
                 <div class="flex gap-3">
                     <div class="w-1/2">
                         <label class="text-[10px] text-gray-500 font-bold uppercase">Wo gekauft?</label>
                         <input type="text" id="inpLoc" placeholder="Händler/Ort" class="w-full h-10 rounded-lg px-3 text-sm mt-1">
                     </div>
                     <div class="w-1/2">
-                        <label class="text-[10px] text-gray-500 font-bold uppercase">Kaufdatum</label>
+                        <label class="text-[10px] text-gray-500 font-bold uppercase">Datum</label>
                         <input type="date" id="inpDate" class="w-full h-10 rounded-lg px-1 text-xs text-center font-medium mt-1">
                     </div>
                 </div>
             </div>
-
             <div class="mt-6 flex gap-3">
-                <button id="btnDelete" onclick="deleteCurrentEntry()" class="hidden w-1/3 h-11 bg-red-500/10 text-red-500 border border-red-500/30 font-bold rounded-xl active:scale-95 transition-transform text-sm">
-                    Löschen
-                </button>
-                <button onclick="saveEntry()" class="flex-1 h-11 bg-white text-black font-bold rounded-xl active:scale-95 transition-transform text-sm shadow-lg">
-                    Speichern
-                </button>
+                <button id="btnDelete" onclick="deleteCurrentEntry()" class="hidden w-1/3 h-11 bg-red-500/10 text-red-500 border border-red-500/30 font-bold rounded-xl active:scale-95 transition-transform text-sm">Löschen</button>
+                <button onclick="saveEntry()" class="flex-1 h-11 bg-white text-black font-bold rounded-xl active:scale-95 transition-transform text-sm shadow-lg">Speichern</button>
             </div>
         </div>
     </div>
 
-    <input type="hidden" id="priceGold"><input type="hidden" id="priceSilver"><input type="hidden" id="priceEtf">
-
     <script>
-        // --- 1. STATE MANAGEMENT ---
-        let entries = JSON.parse(localStorage.getItem('portfolio_entries_v8')) || [];
-        
-        // Migration from V7 (if exists and V8 empty)
+        // State
+        let entries = JSON.parse(localStorage.getItem('portfolio_entries_v10')) || [];
+        // Migration V9 -> V10
         if(entries.length === 0) {
-            const v7 = JSON.parse(localStorage.getItem('portfolio_entries_v7'));
-            if(v7) { entries = v7; localStorage.setItem('portfolio_entries_v8', JSON.stringify(entries)); }
+            const v9 = JSON.parse(localStorage.getItem('portfolio_entries_v9'));
+            if(v9) { entries = v9; localStorage.setItem('portfolio_entries_v10', JSON.stringify(entries)); }
         }
 
-        let marketPrices = JSON.parse(localStorage.getItem('portfolio_prices_v8')) || { gold: 0, silver: 0, etf: 0, lastUpdate: 'Nie' };
-        let currentEditId = null; // Tracks which item is being edited
+        let prices = JSON.parse(localStorage.getItem('portfolio_prices_v10')) || { gold: 0, silver: 0, etf: 0, lastUpdate: 'Nie' };
+        let currentEditId = null;
 
-        // --- 2. DOM ELEMENTS ---
+        // UI Refs
         const els = {
             totalVal: document.getElementById('currentValueDisplay'),
             plDisplay: document.getElementById('plDisplay'),
             plPercent: document.getElementById('plPercent'),
             plContainer: document.getElementById('plContainer'),
+            sinceDate: document.getElementById('sinceDateLabel'),
             list: document.getElementById('historyList'),
             goldVal: document.getElementById('goldVal'), goldPL: document.getElementById('goldPL'),
             silverVal: document.getElementById('silverVal'), silverPL: document.getElementById('silverPL'),
             etfVal: document.getElementById('etfVal'), etfPL: document.getElementById('etfPL'),
             lastUpdate: document.getElementById('lastUpdateLabel'),
-            // Inputs
-            pGold: document.getElementById('priceGold'),
-            pSilver: document.getElementById('priceSilver'),
-            pEtf: document.getElementById('priceEtf'),
-            // Modal
             modal: document.getElementById('entryModal'),
-            modalTitle: document.getElementById('modalTitle'),
-            btnDelete: document.getElementById('btnDelete'),
-            inpCat: document.getElementById('inpCat'),
-            inpProd: document.getElementById('inpProd'),
-            inpAmt: document.getElementById('inpAmt'),
-            inpWgt: document.getElementById('inpWgt'),
-            inpLoc: document.getElementById('inpLoc'),
-            inpDate: document.getElementById('inpDate'),
-            lblWeight: document.getElementById('lblWeight')
+            inpCat: document.getElementById('inpCat'), inpProd: document.getElementById('inpProd'),
+            inpAmt: document.getElementById('inpAmt'), inpWgt: document.getElementById('inpWgt'),
+            inpLoc: document.getElementById('inpLoc'), inpDate: document.getElementById('inpDate'),
+            btnDelete: document.getElementById('btnDelete'), lblWeight: document.getElementById('lblWeight')
         };
 
-        // --- 3. INITIALIZATION ---
-        // Load stored prices immediately
-        els.pGold.value = marketPrices.gold || 0;
-        els.pSilver.value = marketPrices.silver || 0;
-        els.pEtf.value = marketPrices.etf || 0;
-        els.lastUpdate.innerText = "Update: " + marketPrices.lastUpdate;
+        // Init
+        render();
+        document.addEventListener("DOMContentLoaded", fetchAllPrices);
+        document.addEventListener("visibilitychange", () => { if (document.visibilityState === 'visible') fetchAllPrices(); });
 
-        render(); // Render with cached data immediately
-        
-        // Fetch new data
-        document.addEventListener("DOMContentLoaded", fetchLivePrices);
-        document.addEventListener("visibilitychange", () => { if (document.visibilityState === 'visible') fetchLivePrices(); });
-
-        // --- 4. MODAL LOGIC (ADD / EDIT) ---
-        function openModal(id = null) {
-            currentEditId = id;
-            els.modal.classList.remove('hidden');
-            els.modal.classList.add('flex');
-
-            if (id) {
-                // EDIT MODE
-                const e = entries.find(x => x.id === id);
-                els.modalTitle.innerText = "Eintrag bearbeiten";
-                els.btnDelete.classList.remove('hidden');
-                
-                els.inpCat.value = e.category;
-                els.inpProd.value = e.product;
-                els.inpAmt.value = e.amount;
-                els.inpWgt.value = e.weight;
-                els.inpLoc.value = e.location || '';
-                els.inpDate.value = e.date;
-            } else {
-                // ADD MODE
-                els.modalTitle.innerText = "Neuer Eintrag";
-                els.btnDelete.classList.add('hidden');
-                
-                // Clear fields
-                els.inpCat.value = 'gold';
-                els.inpProd.value = '';
-                els.inpAmt.value = '';
-                els.inpWgt.value = '';
-                els.inpLoc.value = '';
-                els.inpDate.value = new Date().toISOString().split('T')[0];
-            }
-            updateModalLabels();
-        }
-
-        function closeModal() {
-            els.modal.classList.add('hidden');
-            els.modal.classList.remove('flex');
-            currentEditId = null;
-        }
-
-        function updateModalLabels() {
-            if(els.inpCat.value === 'etf') {
-                els.lblWeight.innerText = "Anzahl (Stk)";
-                els.inpWgt.placeholder = "2.5";
-            } else {
-                els.lblWeight.innerText = "Gewicht (g)";
-                els.inpWgt.placeholder = "31.1";
-            }
-        }
-
-        function saveEntry() {
-            const amt = parseFloat(els.inpAmt.value);
-            const wgt = parseFloat(els.inpWgt.value);
-            const cat = els.inpCat.value;
-            let prod = els.inpProd.value.trim();
-            const loc = els.inpLoc.value.trim();
-            const date = els.inpDate.value;
-
-            if (!amt || amt <= 0) { alert("Bitte Preis eingeben."); return; }
-            if (!prod) prod = (cat === 'etf') ? "S&P 500" : (cat === 'gold' ? "Gold" : "Silber");
-
-            const entryData = {
-                id: currentEditId || Date.now(),
-                amount: amt,
-                weight: wgt || 0,
-                category: cat,
-                product: prod,
-                location: loc,
-                date: date
-            };
-
-            if (currentEditId) {
-                // Update existing
-                const index = entries.findIndex(x => x.id === currentEditId);
-                entries[index] = entryData;
-            } else {
-                // Add new
-                entries.unshift(entryData);
-            }
-
-            // SORT: Newest date first
-            entries.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            saveAndRender();
-            closeModal();
-        }
-
-        function deleteCurrentEntry() {
-            if(confirm("Diesen Eintrag wirklich löschen?")) {
-                entries = entries.filter(e => e.id !== currentEditId);
-                saveAndRender();
-                closeModal();
-            }
-        }
-
-        // --- 5. DATA & PRICES ---
-        async function fetchLivePrices() {
+        // --- FETCHING (EXACT ISIN MATCHING) ---
+        async function fetchAllPrices() {
             const icon = document.getElementById('iconRefresh');
-            icon.classList.remove('ph-cloud-arrow-down', 'text-red-500');
             icon.classList.add('ph-spinner', 'spin-slow', 'text-blue-400');
-            els.lastUpdate.innerText = "Lade...";
+            icon.classList.remove('ph-cloud-arrow-down', 'text-red-500');
             
-            try {
-                const fetchSymbol = async (symbol) => {
+            // Helper to fetch one safely
+            const fetchSafe = async (symbol) => {
+                try {
+                    // Yahoo Finance API via AllOrigins Proxy
                     const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`;
                     const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-                    const response = await fetch(proxyUrl);
-                    const data = await response.json();
-                    if(!data.contents) throw new Error("No Data");
-                    return JSON.parse(data.contents).chart.result[0].meta.regularMarketPrice;
-                };
+                    const res = await fetch(proxyUrl);
+                    const data = await res.json();
+                    if(!data.contents) return null;
+                    const json = JSON.parse(data.contents);
+                    return json.chart.result[0].meta.regularMarketPrice;
+                } catch(e) { console.error(symbol, e); return null; }
+            };
 
-                const [goldOz, silverOz, etfPrice] = await Promise.all([
-                    fetchSymbol('XAUEUR=X'),
-                    fetchSymbol('XAGEUR=X'),
-                    fetchSymbol('SXR8.DE')
-                ]);
+            // Fetch independently (Parallel)
+            // SXR8.DE corresponds to ISIN IE00B5BMR087 on Xetra in EUR
+            const [g, s, e] = await Promise.all([
+                fetchSafe('XAUEUR=X'), // Gold in EUR
+                fetchSafe('XAGEUR=X'), // Silver in EUR
+                fetchSafe('SXR8.DE')   // iShares Core S&P 500 UCITS ETF (Acc) in EUR
+            ]);
 
-                // Update Prices
-                marketPrices.gold = goldOz / 31.1034768; 
-                marketPrices.silver = silverOz / 31.1034768;
-                marketPrices.etf = etfPrice;
-                
-                const now = new Date();
-                marketPrices.lastUpdate = now.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
-                
-                localStorage.setItem('portfolio_prices_v8', JSON.stringify(marketPrices));
-                
-                els.pGold.value = marketPrices.gold;
-                els.pSilver.value = marketPrices.silver;
-                els.pEtf.value = marketPrices.etf;
-                els.lastUpdate.innerText = "Update: " + marketPrices.lastUpdate;
-                
-                render();
+            // Only update if we got a real number
+            if(g) prices.gold = g / 31.1034768; 
+            if(s) prices.silver = s / 31.1034768;
+            if(e) prices.etf = e;
 
-                icon.classList.remove('ph-spinner', 'spin-slow');
-                icon.classList.add('ph-check', 'text-green-500');
-                setTimeout(() => {
-                    icon.classList.remove('ph-check', 'text-green-500');
-                    icon.classList.add('ph-cloud-arrow-down', 'text-blue-400');
-                }, 2000);
-
-            } catch (e) {
-                console.error(e);
-                els.lastUpdate.innerText = "Fehler";
-                icon.classList.remove('ph-spinner', 'spin-slow', 'text-blue-400');
-                icon.classList.add('ph-warning', 'text-red-500');
-            }
-        }
-
-        function saveAndRender() {
-            localStorage.setItem('portfolio_entries_v8', JSON.stringify(entries));
+            const now = new Date();
+            prices.lastUpdate = now.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
+            
+            localStorage.setItem('portfolio_prices_v10', JSON.stringify(prices));
             render();
+
+            icon.classList.remove('ph-spinner', 'spin-slow');
+            icon.classList.add('ph-check', 'text-green-500');
+            setTimeout(() => {
+                icon.classList.remove('ph-check', 'text-green-500');
+                icon.classList.add('ph-cloud-arrow-down', 'text-blue-400');
+            }, 2000);
         }
 
-        // --- 6. RENDER UI ---
+        // --- RENDER ---
         function render() {
-            let totalInv = 0, totalVal = 0;
-            // Split Totals
-            let gInv = 0, gVal = 0;
-            let sInv = 0, sVal = 0;
-            let eInv = 0, eVal = 0;
-
-            const pGold = parseFloat(els.pGold.value) || 0;
-            const pSilver = parseFloat(els.pSilver.value) || 0;
-            const pEtf = parseFloat(els.pEtf.value) || 0;
+            let tInv=0, tVal=0;
+            let gInv=0, gVal=0; 
+            let sInv=0, sVal=0;
+            let eInv=0, eVal=0;
+            let oldestDate = null;
 
             els.list.innerHTML = '';
+            els.lastUpdate.innerText = "Stand: " + prices.lastUpdate;
 
             if(entries.length === 0) {
                 els.list.innerHTML = '<div class="text-center text-gray-700 mt-10 text-xs uppercase tracking-widest">Keine Positionen</div>';
+                els.sinceDate.innerText = "Seit Beginn";
+            } else {
+                // Find oldest date
+                const sortedByDate = [...entries].sort((a,b) => new Date(a.date) - new Date(b.date));
+                const d = new Date(sortedByDate[0].date);
+                els.sinceDate.innerText = "Seit " + d.toLocaleDateString('de-DE');
             }
 
             entries.forEach(e => {
-                totalInv += e.amount;
+                tInv += e.amount;
+                
                 let val = 0;
-                
-                // Calculate Value
-                if(e.category === 'gold') { val = e.weight * pGold; gInv += e.amount; }
-                else if(e.category === 'silver') { val = e.weight * pSilver; sInv += e.amount; }
-                else if(e.category === 'etf') { val = e.weight * pEtf; eInv += e.amount; }
-                
-                if(val === 0 && pGold === 0) val = e.amount; // Safe fallback
-                
-                // Accumulate Subtotals (val is calculated above, but we need to add to subtotal vars)
+                let priceUsed = 0;
+
+                if(e.category === 'gold') { priceUsed = prices.gold; gInv += e.amount; }
+                else if(e.category === 'silver') { priceUsed = prices.silver; sInv += e.amount; }
+                else if(e.category === 'etf') { priceUsed = prices.etf; eInv += e.amount; }
+
+                // Fallback Logic
+                if(priceUsed > 0) {
+                    val = e.weight * priceUsed;
+                } else {
+                    val = e.amount; 
+                }
+
                 if(e.category === 'gold') gVal += val;
                 else if(e.category === 'silver') sVal += val;
                 else if(e.category === 'etf') eVal += val;
+                
+                tVal += val;
 
-                totalVal += val;
-
-                // Render List Item
+                // List Item
                 const pl = val - e.amount;
-                const plP = (e.amount > 0) ? (pl / e.amount) * 100 : 0;
+                const plP = e.amount > 0 ? (pl/e.amount)*100 : 0;
                 const col = pl >= 0 ? 'text-green-500' : 'text-red-500';
                 
                 let icon = 'ph-coins'; let iconCol = 'text-yellow-500';
                 if(e.category === 'silver') { icon = 'ph-coin'; iconCol = 'text-gray-300'; }
                 if(e.category === 'etf') { icon = 'ph-chart-line-up'; iconCol = 'text-blue-500'; }
 
-                // Format Date & Location
-                const dateObj = new Date(e.date);
-                const dateStr = dateObj.toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit', year:'2-digit'});
+                const dateStr = new Date(e.date).toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit', year:'2-digit'});
                 const locStr = e.location ? `<span class="flex items-center gap-1"><i class="ph-fill ph-map-pin text-[10px]"></i> ${e.location}</span>` : '';
 
-                const div = document.createElement('div');
-                div.onclick = () => openModal(e.id); // Click to Edit
-                div.className = 'bg-[#1c1c1e] p-3 rounded-xl border border-[#2c2c2e] flex items-center gap-3 active:bg-gray-800 transition-colors cursor-pointer';
-                div.innerHTML = `
+                const el = document.createElement('div');
+                el.onclick = () => openModal(e.id);
+                el.className = 'bg-[#1c1c1e] p-3 rounded-xl border border-[#2c2c2e] flex items-center gap-3 active:bg-gray-800 transition-colors cursor-pointer';
+                el.innerHTML = `
                     <div class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-xl shrink-0 ${iconCol}">
                         <i class="ph-fill ${icon}"></i>
                     </div>
@@ -472,20 +338,20 @@
                             </div>
                         </div>
                     </div>
-                    <i class="ph-bold ph-caret-right text-gray-700"></i>
+                    <i class="ph-bold ph-pencil-simple text-gray-700"></i>
                 `;
-                els.list.appendChild(div);
+                els.list.appendChild(el);
             });
 
             // Update Header
-            els.totalVal.innerText = fmt(totalVal);
-            const totalPL = totalVal - totalInv;
-            const totalPLP = totalInv > 0 ? (totalPL / totalInv) * 100 : 0;
+            els.totalVal.innerText = fmt(tVal);
+            const totalPL = tVal - tInv;
+            const totalPLP = tInv > 0 ? (totalPL/tInv)*100 : 0;
             
             els.plDisplay.innerText = (totalPL >= 0 ? "+" : "") + fmt(totalPL);
             els.plPercent.innerText = (totalPL >= 0 ? "+" : "") + totalPLP.toFixed(2) + "%";
             
-            // Color Logic Header
+            // Header Color
             if(totalPL >= 0) {
                 els.plContainer.className = "bg-green-500/10 px-3 py-1 rounded-lg border border-green-500/30 flex items-center gap-2";
                 els.plDisplay.className = "text-sm font-bold text-green-400";
@@ -498,51 +364,114 @@
                 document.getElementById('glow-bg').className = "absolute -top-10 -right-10 w-48 h-48 bg-red-500 rounded-full blur-[80px] opacity-20 pointer-events-none transition-colors duration-700";
             }
 
-            // Update 3 Columns
+            // Update Columns
             updateCard(els.goldVal, els.goldPL, gVal, gInv);
             updateCard(els.silverVal, els.silverPL, sVal, sInv);
             updateCard(els.etfVal, els.etfPL, eVal, eInv);
         }
 
-        // Helper: Update a single summary card
-        function updateCard(elVal, elPL, current, invested) {
-            const diff = current - invested;
-            const pct = invested > 0 ? (diff / invested) * 100 : 0;
-            elVal.innerText = fmt0(current);
+        function updateCard(elVal, elPL, curr, inv) {
+            const diff = curr - inv;
+            const pct = inv > 0 ? (diff/inv)*100 : 0;
+            elVal.innerText = fmt0(curr);
             elPL.innerText = (diff >= 0 ? "+" : "") + pct.toFixed(1) + "%";
             elPL.className = diff >= 0 ? "text-[9px] font-bold text-green-500" : "text-[9px] font-bold text-red-500";
         }
 
-        // Formats
-        function fmt(n) { return new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR'}).format(n); }
-        function fmt0(n) { return new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR', maximumFractionDigits:0}).format(n); }
-
-        // --- 7. BACKUP / RESTORE ---
-        function exportBackup() {
-            const data = { entries: entries, prices: marketPrices, version: 'v8', exportDate: new Date().toISOString() };
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
-            const a = document.createElement('a');
-            a.href = dataStr;
-            a.download = "portfolio_" + new Date().toISOString().split('T')[0] + ".json";
-            a.click();
+        // --- ACTIONS ---
+        function openModal(id = null) {
+            currentEditId = id;
+            els.modal.classList.remove('hidden'); els.modal.classList.add('flex');
+            if(id) {
+                const e = entries.find(x => x.id === id);
+                document.getElementById('modalTitle').innerText = "Bearbeiten";
+                els.btnDelete.classList.remove('hidden');
+                els.inpCat.value = e.category; els.inpProd.value = e.product;
+                els.inpAmt.value = e.amount; els.inpWgt.value = e.weight;
+                els.inpLoc.value = e.location || ''; els.inpDate.value = e.date;
+            } else {
+                document.getElementById('modalTitle').innerText = "Neu";
+                els.btnDelete.classList.add('hidden');
+                els.inpCat.value = 'gold'; els.inpProd.value = '';
+                els.inpAmt.value = ''; els.inpWgt.value = '';
+                els.inpLoc.value = ''; els.inpDate.value = new Date().toISOString().split('T')[0];
+            }
+            updateModalLabels();
         }
+        function closeModal() { els.modal.classList.add('hidden'); els.modal.classList.remove('flex'); currentEditId = null; }
+        
+        function updateModalLabels() {
+            if(els.inpCat.value === 'etf') { 
+                els.lblWeight.innerText = "Anzahl (Stk)"; 
+                els.inpWgt.placeholder="2.5";
+                // Auto-fill Name for ETF
+                if(els.inpProd.value === '') els.inpProd.value = "iShares S&P 500";
+            } else { 
+                els.lblWeight.innerText = "Gewicht (g)"; 
+                els.inpWgt.placeholder="31.1"; 
+                if(els.inpProd.value === "iShares S&P 500") els.inpProd.value = "";
+            }
+        }
+        
+        function saveEntry() {
+            const amt = parseFloat(els.inpAmt.value);
+            const wgt = parseFloat(els.inpWgt.value);
+            if(!amt || amt <= 0) { alert("Preis fehlt!"); return; }
+            
+            const cat = els.inpCat.value;
+            let prod = els.inpProd.value.trim();
+            if(!prod) prod = cat === 'etf' ? "iShares S&P 500" : (cat==='gold'?"Gold":"Silber");
 
-        function importBackup(input) {
-            const file = input.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
+            const item = {
+                id: currentEditId || Date.now(),
+                amount: amt, weight: wgt || 0, category: cat,
+                product: prod, location: els.inpLoc.value.trim(), date: els.inpDate.value
+            };
+
+            if(currentEditId) {
+                const idx = entries.findIndex(x => x.id === currentEditId);
+                entries[idx] = item;
+            } else {
+                entries.unshift(item);
+            }
+            // Sort Newest First
+            entries.sort((a,b) => new Date(b.date) - new Date(a.date));
+            localStorage.setItem('portfolio_entries_v10', JSON.stringify(entries));
+            render(); closeModal();
+        }
+        function deleteCurrentEntry() {
+            if(confirm("Löschen?")) {
+                entries = entries.filter(x => x.id !== currentEditId);
+                localStorage.setItem('portfolio_entries_v10', JSON.stringify(entries));
+                render(); closeModal();
+            }
+        }
+        function exportBackup() {
+            const d = {entries, prices, version:'v10'};
+            const a = document.createElement('a');
+            a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(d));
+            a.download = "portfolio_backup.json"; a.click();
+        }
+        function importBackup(inp) {
+            const f = inp.files[0];
+            if(!f) return;
+            const r = new FileReader();
+            r.onload = e => {
                 try {
-                    const data = JSON.parse(e.target.result);
+                    const d = JSON.parse(e.target.result);
                     if(confirm("Daten überschreiben?")) {
-                        if(data.entries) { entries = data.entries; localStorage.setItem('portfolio_entries_v8', JSON.stringify(entries)); }
-                        if(data.prices) { marketPrices = data.prices; localStorage.setItem('portfolio_prices_v8', JSON.stringify(marketPrices)); }
+                        if(d.entries) entries = d.entries;
+                        if(d.prices) prices = d.prices;
+                        localStorage.setItem('portfolio_entries_v10', JSON.stringify(entries));
+                        localStorage.setItem('portfolio_prices_v10', JSON.stringify(prices));
                         location.reload();
                     }
-                } catch (err) { alert("Backup fehlerhaft"); }
+                } catch(err) { alert("Fehler"); }
             };
-            reader.readAsText(file);
+            r.readAsText(f);
         }
+        function fmt(n) { return new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR'}).format(n); }
+        function fmt0(n) { return new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR', maximumFractionDigits:0}).format(n); }
     </script>
 </body>
 </html>
