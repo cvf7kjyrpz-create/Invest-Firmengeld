@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Portfolio Tracker</title>
+    <title>Portfolio V6</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -43,80 +43,71 @@
 
         .bg-card { background: #1c1c1e; }
         
-        /* Loading Animation */
+        /* Animations */
         .spin-slow { animation: spin 1s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
         .entry-item { transition: all 0.2s ease; }
         .entry-item.deleting { transform: translateX(-100%); opacity: 0; }
         
-        /* Specific Gradients for the Split Cards */
-        .gradient-gold { background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(0,0,0,0)); }
-        .gradient-blue { background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(0,0,0,0)); }
+        /* Glassy Gradients */
+        .gradient-gold { background: linear-gradient(135deg, rgba(234, 179, 8, 0.15), rgba(0,0,0,0)); border: 1px solid rgba(234, 179, 8, 0.2); }
+        .gradient-silver { background: linear-gradient(135deg, rgba(209, 213, 219, 0.15), rgba(0,0,0,0)); border: 1px solid rgba(209, 213, 219, 0.2); }
+        .gradient-blue { background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(0,0,0,0)); border: 1px solid rgba(59, 130, 246, 0.2); }
     </style>
 </head>
 <body class="h-screen flex flex-col px-4 pt-10 pb-6 bg-black">
 
-    <div class="bg-gray-900 rounded-2xl p-5 mb-4 border border-gray-800 relative overflow-hidden shadow-2xl">
-        <div id="glow-bg" class="absolute top-0 right-0 w-40 h-40 bg-blue-600 rounded-full blur-[70px] opacity-20 pointer-events-none transition-colors duration-500"></div>
+    <div class="bg-gray-900 rounded-3xl p-6 mb-5 border border-gray-800 relative overflow-hidden shadow-2xl">
+        <div id="glow-bg" class="absolute -top-10 -right-10 w-48 h-48 bg-blue-600 rounded-full blur-[80px] opacity-20 pointer-events-none transition-colors duration-700"></div>
 
-        <div class="flex justify-between items-start mb-2 relative z-10">
+        <div class="flex justify-between items-start mb-1 relative z-10">
             <div>
-                <p class="text-gray-400 text-[10px] font-bold uppercase tracking-wider mb-1">Gesamtvermögen</p>
-                <h1 id="currentValueDisplay" class="text-4xl font-extrabold tracking-tight text-white">0,00 €</h1>
+                <p class="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-2">Gesamtvermögen</p>
+                <h1 id="currentValueDisplay" class="text-5xl font-extrabold tracking-tight text-white mb-1">0,00 €</h1>
             </div>
             
-            <button onclick="fetchLivePrices()" id="btnRefresh" class="bg-gray-800 p-2 rounded-full text-blue-400 hover:text-white transition-all shadow-lg border border-gray-700 active:scale-90">
-                <i id="iconRefresh" class="ph-bold ph-cloud-arrow-down text-lg"></i>
+            <button onclick="fetchLivePrices()" id="btnRefresh" class="bg-gray-800/80 backdrop-blur p-2.5 rounded-full text-blue-400 border border-gray-700 active:scale-90 transition-all">
+                <i id="iconRefresh" class="ph-bold ph-cloud-arrow-down text-xl"></i>
             </button>
         </div>
         
-        <div class="flex justify-between items-end relative z-10 mt-2">
-            <div>
-                 <p class="text-gray-500 text-[10px] font-bold uppercase tracking-wider">Investiert Total</p>
-                 <p id="investedDisplay" class="text-gray-300 font-semibold text-sm">0,00 €</p>
+        <div class="flex items-center gap-3 relative z-10">
+            <div id="plContainer" class="bg-gray-800/50 backdrop-blur px-3 py-1.5 rounded-lg border border-gray-700 flex items-center gap-2">
+                <span id="plDisplay" class="text-sm font-bold text-gray-300">0,00 €</span>
+                <span id="plPercent" class="text-xs font-bold text-gray-500 bg-black/30 px-1.5 py-0.5 rounded">0.00%</span>
             </div>
-            <div class="text-right">
-                <div id="plDisplay" class="text-lg font-bold text-gray-500">0,00 €</div>
-                <div id="plPercent" class="text-xs font-medium text-gray-500">0,00%</div>
-            </div>
+            <span class="text-[10px] text-gray-600 font-medium uppercase tracking-wider">Seit Beginn</span>
         </div>
     </div>
 
     <div class="grid grid-cols-2 gap-3 mb-6">
-        <div class="bg-card rounded-xl p-3 border border-gray-800 gradient-gold relative overflow-hidden">
-            <div class="flex items-center gap-2 mb-2">
-                <i class="ph-fill ph-coins text-yellow-500"></i>
-                <span class="text-[10px] font-bold uppercase text-gray-400">Edelmetalle</span>
+        <div class="rounded-2xl p-4 gradient-gold relative">
+            <div class="flex justify-between items-start mb-2">
+                <div class="bg-yellow-500/10 p-1.5 rounded-lg text-yellow-500"><i class="ph-fill ph-coins"></i></div>
+                <span id="metalPLDisplay" class="text-[10px] font-bold text-gray-400">0%</span>
             </div>
-            <h2 id="metalValueDisplay" class="text-xl font-bold text-white mb-1">0 €</h2>
-            <div class="flex justify-between items-end">
-                <span class="text-[10px] text-gray-500">Gold & Silber</span>
-                <span id="metalPLDisplay" class="text-xs font-bold text-gray-500">0%</span>
-            </div>
+            <p class="text-[10px] font-bold uppercase text-gray-500 mb-0.5">Edelmetalle</p>
+            <h2 id="metalValueDisplay" class="text-xl font-bold text-white">0 €</h2>
         </div>
 
-        <div class="bg-card rounded-xl p-3 border border-gray-800 gradient-blue relative overflow-hidden">
-            <div class="flex items-center gap-2 mb-2">
-                <i class="ph-fill ph-chart-line-up text-blue-500"></i>
-                <span class="text-[10px] font-bold uppercase text-gray-400">Aktien / ETF</span>
+        <div class="rounded-2xl p-4 gradient-blue relative">
+            <div class="flex justify-between items-start mb-2">
+                <div class="bg-blue-500/10 p-1.5 rounded-lg text-blue-500"><i class="ph-fill ph-chart-line-up"></i></div>
+                <span id="etfPLDisplay" class="text-[10px] font-bold text-gray-400">0%</span>
             </div>
-            <h2 id="etfValueDisplay" class="text-xl font-bold text-white mb-1">0 €</h2>
-            <div class="flex justify-between items-end">
-                <span class="text-[10px] text-gray-500">S&P 500</span>
-                <span id="etfPLDisplay" class="text-xs font-bold text-gray-500">0%</span>
-            </div>
+            <p class="text-[10px] font-bold uppercase text-gray-500 mb-0.5">Aktien / ETF</p>
+            <h2 id="etfValueDisplay" class="text-xl font-bold text-white">0 €</h2>
         </div>
     </div>
 
-    <div id="marketSettings" class="hidden">
-        <input type="number" id="priceGold">
-        <input type="number" id="priceSilver">
-        <input type="number" id="priceEtf">
-        <span id="lastUpdateLabel"></span>
+    <div class="mb-4">
+        <button onclick="document.getElementById('addForm').classList.toggle('hidden')" class="w-full py-3 bg-[#1c1c1e] border border-gray-800 rounded-xl text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center justify-center gap-2 active:bg-gray-800 transition-colors">
+            <i class="ph-bold ph-plus"></i> Neuen Kauf eintragen
+        </button>
     </div>
 
-    <div class="bg-card p-4 rounded-xl mb-6 shadow-lg border border-gray-800">
+    <div id="addForm" class="hidden bg-card p-4 rounded-xl mb-6 border border-gray-800 animate-fade-in-down">
         <div class="flex flex-col gap-3">
             <div class="flex gap-3">
                 <div class="w-1/3">
@@ -128,97 +119,80 @@
                     </select>
                 </div>
                 <div class="w-2/3">
-                    <label class="text-[10px] text-gray-500 font-bold ml-1 uppercase">Name / Notiz</label>
-                    <input type="text" id="inputProduct" placeholder="z.B. Maple Leaf" class="w-full h-10 rounded-lg px-3 text-sm mt-1">
+                    <label class="text-[10px] text-gray-500 font-bold ml-1 uppercase">Was?</label>
+                    <input type="text" id="inputProduct" placeholder="z.B. 1oz Krügerrand" class="w-full h-10 rounded-lg px-3 text-sm mt-1">
                 </div>
             </div>
 
             <div class="flex gap-3">
                 <div class="w-1/2">
-                    <label class="text-[10px] text-gray-500 font-bold ml-1 uppercase">Bezahlt (€)</label>
-                    <input type="number" id="inputAmount" placeholder="0.00" step="0.01" inputmode="decimal" class="w-full h-10 rounded-lg px-3 text-base font-bold mt-1">
+                    <label class="text-[10px] text-gray-500 font-bold ml-1 uppercase text-yellow-500">Bezahlt (€)</label>
+                    <input type="number" id="inputAmount" placeholder="Echter Preis" step="0.01" inputmode="decimal" class="w-full h-10 rounded-lg px-3 text-base font-bold mt-1 border-gray-700 focus:border-yellow-500">
                 </div>
                 <div class="w-1/2">
-                    <label id="labelWeight" class="text-[10px] text-gray-500 font-bold ml-1 uppercase">Gewicht (Gramm)</label>
+                    <label id="labelWeight" class="text-[10px] text-gray-500 font-bold ml-1 uppercase">Gewicht (g)</label>
                     <input type="number" id="inputWeight" placeholder="0.00" step="0.01" inputmode="decimal" class="w-full h-10 rounded-lg px-3 text-base font-medium mt-1">
                 </div>
             </div>
 
             <div class="flex gap-3">
                 <div class="w-1/2">
-                    <label class="text-[10px] text-gray-500 font-bold ml-1 uppercase">Ort (Optional)</label>
-                    <input type="text" id="inputLocation" placeholder="Händler" class="w-full h-10 rounded-lg px-3 text-xs mt-1">
-                </div>
-                <div class="w-1/2">
                     <label class="text-[10px] text-gray-500 font-bold ml-1 uppercase">Datum</label>
                     <input type="date" id="inputDate" class="w-full h-10 rounded-lg px-2 text-xs mt-1 text-center font-medium">
                 </div>
+                 <div class="w-1/2 flex items-end">
+                    <button onclick="addEntry()" class="w-full h-10 bg-white text-black font-bold rounded-lg active:scale-95 transition-transform text-xs">
+                        Speichern
+                    </button>
+                </div>
             </div>
-
-            <button onclick="addEntry()" class="w-full h-11 mt-1 bg-white text-black font-bold rounded-lg active:scale-95 transition-transform flex items-center justify-center gap-2 text-sm hover:bg-gray-200">
-                <i class="ph-bold ph-plus"></i> Hinzufügen
-            </button>
+            <p class="text-[9px] text-gray-600 text-center mt-1">"Bezahlt" ist wichtig, um deinen echten Gewinn inkl. Händler-Aufschlag zu berechnen.</p>
         </div>
     </div>
 
     <div class="flex-1 overflow-hidden flex flex-col">
-        <h3 class="text-gray-500 text-xs font-bold uppercase tracking-wider mb-3 ml-1">Portfolio Bestand</h3>
-        <div id="historyList" class="overflow-y-auto no-scrollbar pb-10 space-y-2.5">
+        <div id="historyList" class="overflow-y-auto no-scrollbar pb-10 space-y-2">
             </div>
     </div>
 
-    <script>
-        // --- Data Handling ---
-        let entries = JSON.parse(localStorage.getItem('portfolio_entries_v5')) || [];
-        let marketPrices = JSON.parse(localStorage.getItem('portfolio_prices_v5')) || { gold: 0, silver: 0, etf: 0, lastUpdate: 'Nie' };
+    <input type="hidden" id="priceGold"><input type="hidden" id="priceSilver"><input type="hidden" id="priceEtf">
 
-        // DOM Elements - Main
+    <script>
+        // Data Init
+        let entries = JSON.parse(localStorage.getItem('portfolio_entries_v6')) || [];
+        let marketPrices = JSON.parse(localStorage.getItem('portfolio_prices_v6')) || { gold: 0, silver: 0, etf: 0, lastUpdate: 'Nie' };
+
+        // DOM Linking
         const elCurrentValue = document.getElementById('currentValueDisplay');
-        const elInvested = document.getElementById('investedDisplay');
         const elPL = document.getElementById('plDisplay');
         const elPLPercent = document.getElementById('plPercent');
+        const elPLContainer = document.getElementById('plContainer');
+        const elHistory = document.getElementById('historyList');
         
-        // DOM Elements - Split Cards
+        // Split DOM
         const elMetalValue = document.getElementById('metalValueDisplay');
         const elMetalPL = document.getElementById('metalPLDisplay');
         const elEtfValue = document.getElementById('etfValueDisplay');
         const elEtfPL = document.getElementById('etfPLDisplay');
 
-        const elHistory = document.getElementById('historyList');
-        const elLastUpdate = document.getElementById('lastUpdateLabel');
-        
         // Inputs
-        const inpProduct = document.getElementById('inputProduct');
-        const inpCategory = document.getElementById('inputCategory');
-        const inpAmount = document.getElementById('inputAmount');
-        const inpWeight = document.getElementById('inputWeight'); 
-        const inpLocation = document.getElementById('inputLocation');
-        const inpDate = document.getElementById('inputDate');
-        
-        // Price Inputs (Hidden)
         const inpPriceGold = document.getElementById('priceGold');
         const inpPriceSilver = document.getElementById('priceSilver');
         const inpPriceEtf = document.getElementById('priceEtf');
 
-        // Init
-        inpPriceGold.value = marketPrices.gold ? marketPrices.gold.toFixed(2) : '';
-        inpPriceSilver.value = marketPrices.silver ? marketPrices.silver.toFixed(2) : '';
-        inpPriceEtf.value = marketPrices.etf ? marketPrices.etf.toFixed(2) : '';
-        if(elLastUpdate) elLastUpdate.innerText = "Update: " + marketPrices.lastUpdate;
-        
-        updateLabels(); 
-        render();
+        // Restore Prices
+        inpPriceGold.value = marketPrices.gold || 0;
+        inpPriceSilver.value = marketPrices.silver || 0;
+        inpPriceEtf.value = marketPrices.etf || 0;
 
-        // --- AUTO UPDATE LOGIC ---
-        document.addEventListener("DOMContentLoaded", () => { fetchLivePrices(); });
-        document.addEventListener("visibilitychange", () => {
-            if (document.visibilityState === 'visible') fetchLivePrices();
-        });
+        // Auto Start
+        document.addEventListener("DOMContentLoaded", () => { render(); fetchLivePrices(); });
+        document.addEventListener("visibilitychange", () => { if (document.visibilityState === 'visible') fetchLivePrices(); });
 
-        // --- FETCHING LIVE DATA ---
+        // --- CORE FUNCTIONS ---
+
         async function fetchLivePrices() {
             const icon = document.getElementById('iconRefresh');
-            
             icon.classList.remove('ph-cloud-arrow-down', 'text-red-500');
             icon.classList.add('ph-spinner', 'spin-slow', 'text-blue-400');
             
@@ -228,267 +202,209 @@
                     const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
                     const response = await fetch(proxyUrl);
                     const data = await response.json();
-                    if(!data.contents) throw new Error("No data");
-                    const json = JSON.parse(data.contents);
-                    return json.chart.result[0].meta.regularMarketPrice;
+                    if(!data.contents) throw new Error("No Data");
+                    return JSON.parse(data.contents).chart.result[0].meta.regularMarketPrice;
                 };
 
-                const [goldPriceOz, silverPriceOz, etfPrice] = await Promise.all([
+                const [goldOz, silverOz, etfPrice] = await Promise.all([
                     fetchSymbol('XAUEUR=X'),
                     fetchSymbol('XAGEUR=X'),
-                    fetchSymbol('SXR8.DE') 
+                    fetchSymbol('SXR8.DE')
                 ]);
 
-                const goldPriceGram = goldPriceOz / 31.1034768;
-                const silverPriceGram = silverPriceOz / 31.1034768;
-
-                inpPriceGold.value = goldPriceGram.toFixed(2);
-                inpPriceSilver.value = silverPriceGram.toFixed(2);
-                inpPriceEtf.value = etfPrice.toFixed(2);
+                // Update Logic
+                marketPrices.gold = goldOz / 31.1034768; // Gram price
+                marketPrices.silver = silverOz / 31.1034768;
+                marketPrices.etf = etfPrice;
                 
                 const now = new Date();
-                const timeString = now.toLocaleTimeString('de-DE', {hour: '2-digit', minute:'2-digit'});
+                marketPrices.lastUpdate = now.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
+                
+                localStorage.setItem('portfolio_prices_v6', JSON.stringify(marketPrices));
+                
+                // Update Hidden Inputs & Render
+                inpPriceGold.value = marketPrices.gold;
+                inpPriceSilver.value = marketPrices.silver;
+                inpPriceEtf.value = marketPrices.etf;
+                render();
 
-                savePrices(timeString); 
-
+                // Success UI
                 icon.classList.remove('ph-spinner', 'spin-slow');
                 icon.classList.add('ph-check', 'text-green-500');
-                
                 setTimeout(() => {
                     icon.classList.remove('ph-check', 'text-green-500');
                     icon.classList.add('ph-cloud-arrow-down', 'text-blue-400');
                 }, 2000);
 
-            } catch (error) {
-                console.error("Fetch Error:", error);
+            } catch (e) {
+                console.error(e);
                 icon.classList.remove('ph-spinner', 'spin-slow', 'text-blue-400');
                 icon.classList.add('ph-warning', 'text-red-500');
             }
         }
 
-        function updateLabels() {
-            const cat = inpCategory.value;
-            const label = document.getElementById('labelWeight');
-            if (cat === 'etf') {
-                label.innerText = 'Anzahl (Anteile)';
-                inpWeight.placeholder = "z.B. 2.5";
-            } else {
-                label.innerText = 'Gewicht (Gramm)';
-                inpWeight.placeholder = "z.B. 31.1";
-            }
-        }
-
-        function savePrices(timestampOverride) {
-            marketPrices.gold = parseFloat(inpPriceGold.value) || 0;
-            marketPrices.silver = parseFloat(inpPriceSilver.value) || 0;
-            marketPrices.etf = parseFloat(inpPriceEtf.value) || 0;
-            if(timestampOverride) marketPrices.lastUpdate = timestampOverride;
-            
-            localStorage.setItem('portfolio_prices_v5', JSON.stringify(marketPrices));
-            render(); 
-        }
-
         function addEntry() {
-            const amount = parseFloat(inpAmount.value);
-            const weight = parseFloat(inpWeight.value);
-            const category = inpCategory.value;
-            const product = inpProduct.value.trim();
-            const location = inpLocation.value.trim();
-            const dateVal = inpDate.value; 
+            const amt = parseFloat(document.getElementById('inputAmount').value);
+            const wgt = parseFloat(document.getElementById('inputWeight').value);
+            const cat = document.getElementById('inputCategory').value;
+            const prod = document.getElementById('inputProduct').value.trim();
+            const date = document.getElementById('inputDate').value;
 
-            if (!amount || amount <= 0) { alert("Bitte einen Kaufpreis eingeben."); return; }
-            
-            let finalProduct = product;
-            if(!finalProduct) {
-                if(category === 'etf') finalProduct = "S&P 500 ETF";
-                else if(category === 'gold') finalProduct = "Gold";
-                else finalProduct = "Silber";
-            }
+            if (!amt || amt <= 0) { alert("Bitte 'Bezahlt' eingeben."); return; }
 
-            const newEntry = {
+            let label = prod;
+            if(!label) label = (cat === 'etf') ? "S&P 500" : (cat === 'gold' ? "Gold" : "Silber");
+
+            entries.unshift({
                 id: Date.now(),
-                amount: amount,
-                weight: weight || 0,
-                category: category,
-                product: finalProduct,
-                location: location || '',
-                date: dateVal ? dateVal : null 
-            };
-
-            entries.unshift(newEntry);
-            entries.sort((a, b) => {
-                if (a.date && b.date) return new Date(b.date) - new Date(a.date);
-                if (!a.date && b.date) return -1; 
-                return 0;
+                amount: amt,
+                weight: wgt || 0,
+                category: cat,
+                product: label,
+                date: date || new Date().toISOString().split('T')[0] // Default to today
             });
 
+            // Sort: Newest Date First
+            entries.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            document.getElementById('inputAmount').value = '';
+            document.getElementById('inputWeight').value = '';
+            document.getElementById('inputProduct').value = '';
+            document.getElementById('addForm').classList.add('hidden'); // Close form
             saveAndRender();
-            
-            inpAmount.value = '';
-            inpWeight.value = '';
-            inpProduct.value = '';
-            inpLocation.value = '';
-            inpDate.value = ''; 
-            inpProduct.focus();
         }
 
         function deleteEntry(id) {
-            if(confirm('Eintrag entfernen?')) {
-                document.getElementById(`entry-${id}`).classList.add('deleting');
-                setTimeout(() => {
-                    entries = entries.filter(e => e.id !== id);
-                    saveAndRender();
-                }, 200);
+            if(confirm('Löschen?')) {
+                entries = entries.filter(e => e.id !== id);
+                saveAndRender();
             }
         }
 
         function saveAndRender() {
-            localStorage.setItem('portfolio_entries_v5', JSON.stringify(entries));
+            localStorage.setItem('portfolio_entries_v6', JSON.stringify(entries));
             render();
         }
 
-        function formatCurrency(num) {
-            return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(num);
-        }
-        function formatCurrencyDec(num) {
-            return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(num);
-        }
-        function formatDate(isoString) {
-            if (!isoString) return '';
-            const date = new Date(isoString);
-            return date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' });
+        function updateLabels() {
+            const cat = document.getElementById('inputCategory').value;
+            const lbl = document.getElementById('labelWeight');
+            const inp = document.getElementById('inputWeight');
+            if(cat === 'etf') { lbl.innerText = 'Anteile (Stk)'; inp.placeholder = "2.5"; }
+            else { lbl.innerText = 'Gewicht (g)'; inp.placeholder = "31.1"; }
         }
 
+        // --- RENDER LOGIC ---
         function render() {
-            let totalInvested = 0;
-            let currentPortfolioValue = 0;
-            
-            // Split Calc
-            let metalInvested = 0;
-            let metalCurrent = 0;
-            let etfInvested = 0;
-            let etfCurrent = 0;
+            let totalInv = 0, totalVal = 0;
+            let mInv = 0, mVal = 0, eInv = 0, eVal = 0;
+
+            const pGold = parseFloat(inpPriceGold.value) || 0;
+            const pSilver = parseFloat(inpPriceSilver.value) || 0;
+            const pEtf = parseFloat(inpPriceEtf.value) || 0;
+
+            elHistory.innerHTML = '';
+
+            if(entries.length === 0) {
+                elHistory.innerHTML = '<div class="text-center text-gray-700 mt-10 text-xs uppercase tracking-widest">Keine Positionen</div>';
+            }
 
             entries.forEach(e => {
-                totalInvested += e.amount;
-                let entryValue = 0;
-                let isMetal = (e.category === 'gold' || e.category === 'silver');
+                totalInv += e.amount;
+                let val = 0;
                 
-                if (e.category === 'gold') entryValue = e.weight * marketPrices.gold;
-                else if (e.category === 'silver') entryValue = e.weight * marketPrices.silver;
-                else if (e.category === 'etf') entryValue = e.weight * marketPrices.etf;
+                // Calc Value
+                if(e.category === 'gold') val = e.weight * pGold;
+                else if(e.category === 'silver') val = e.weight * pSilver;
+                else if(e.category === 'etf') val = e.weight * pEtf;
                 
-                // Fallback for empty prices
-                if (entryValue === 0 && (!marketPrices[e.category] || marketPrices[e.category] === 0)) {
-                    entryValue = e.amount; 
-                }
+                // Fallback if offline/no price
+                if(val === 0 && pGold === 0) val = e.amount;
 
-                currentPortfolioValue += entryValue;
-                e.calculatedValue = entryValue; 
+                totalVal += val;
 
-                // Split Logic
-                if (isMetal) {
-                    metalInvested += e.amount;
-                    metalCurrent += entryValue;
-                } else {
-                    etfInvested += e.amount;
-                    etfCurrent += entryValue;
-                }
-            });
+                // Split Calc
+                if(e.category === 'etf') { eInv += e.amount; eVal += val; }
+                else { mInv += e.amount; mVal += val; }
 
-            // 1. UPDATE MAIN TOTAL
-            elInvested.innerText = formatCurrencyDec(totalInvested);
-            elCurrentValue.innerText = formatCurrencyDec(currentPortfolioValue);
+                // Time Diff Calc
+                const diffTime = Math.abs(new Date() - new Date(e.date));
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                let timeLabel = `Vor ${diffDays} Tagen`;
+                if(diffDays === 1) timeLabel = "Heute";
 
-            const profitLoss = currentPortfolioValue - totalInvested;
-            const plPercent = totalInvested > 0 ? (profitLoss / totalInvested) * 100 : 0;
-
-            elPL.innerText = (profitLoss >= 0 ? "+" : "") + formatCurrencyDec(profitLoss);
-            elPLPercent.innerText = (profitLoss >= 0 ? "+" : "") + plPercent.toFixed(2) + "%";
-
-            // Main Glow & Colors
-            const glow = document.getElementById('glow-bg');
-            if(profitLoss >= 0) {
-                elPL.className = "text-lg font-bold text-green-500";
-                elPLPercent.className = "text-xs font-medium text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full inline-block";
-                glow.className = "absolute top-0 right-0 w-40 h-40 bg-green-500 rounded-full blur-[70px] opacity-20 pointer-events-none transition-colors duration-500";
-            } else {
-                elPL.className = "text-lg font-bold text-red-500";
-                elPLPercent.className = "text-xs font-medium text-red-500 bg-red-500/10 px-2 py-0.5 rounded-full inline-block";
-                glow.className = "absolute top-0 right-0 w-40 h-40 bg-red-500 rounded-full blur-[70px] opacity-20 pointer-events-none transition-colors duration-500";
-            }
-
-            // 2. UPDATE SPLIT CARDS
-            // Metals
-            const metalPL = metalCurrent - metalInvested;
-            const metalPLP = metalInvested > 0 ? (metalPL / metalInvested) * 100 : 0;
-            elMetalValue.innerText = formatCurrencyDec(metalCurrent);
-            elMetalPL.innerText = (metalPL >= 0 ? "+" : "") + metalPLP.toFixed(1) + "%";
-            elMetalPL.className = metalPL >= 0 ? "text-xs font-bold text-green-500" : "text-xs font-bold text-red-500";
-
-            // ETF
-            const etfPL = etfCurrent - etfInvested;
-            const etfPLP = etfInvested > 0 ? (etfPL / etfInvested) * 100 : 0;
-            elEtfValue.innerText = formatCurrencyDec(etfCurrent);
-            elEtfPL.innerText = (etfPL >= 0 ? "+" : "") + etfPLP.toFixed(1) + "%";
-            elEtfPL.className = etfPL >= 0 ? "text-xs font-bold text-green-500" : "text-xs font-bold text-red-500";
-
-
-            // 3. RENDER LIST
-            elHistory.innerHTML = '';
-            if (entries.length === 0) {
-                elHistory.innerHTML = '<div class="text-center text-gray-800 mt-8 text-xs">Dein Portfolio ist leer.</div>';
-                return;
-            }
-
-            entries.forEach(entry => {
-                let iconClass = 'ph-coins';
-                let colorClass = 'text-yellow-500';
-                let unitLabel = 'g';
+                // Item PL
+                const pl = val - e.amount;
+                const plP = (e.amount > 0) ? (pl / e.amount) * 100 : 0;
+                const col = pl >= 0 ? 'text-green-500' : 'text-red-500';
                 
-                if(entry.category === 'silver') { iconClass = 'ph-coin'; colorClass = 'text-gray-400'; }
-                if(entry.category === 'etf') { iconClass = 'ph-chart-line-up'; colorClass = 'text-blue-500'; unitLabel = ' Stk'; }
+                // Icons
+                let icon = 'ph-coins'; let bg = 'bg-yellow-500/10 text-yellow-500';
+                if(e.category === 'silver') { icon = 'ph-coin'; bg = 'bg-gray-500/10 text-gray-400'; }
+                if(e.category === 'etf') { icon = 'ph-chart-line-up'; bg = 'bg-blue-500/10 text-blue-500'; }
 
-                const entryPL = entry.calculatedValue - entry.amount;
-                const isProfit = entryPL >= 0;
-                const plColor = isProfit ? 'text-green-500' : 'text-red-500';
-                
-                let metaString = '';
-                if (entry.location) metaString += `<span class="mr-2"><i class="ph-bold ph-map-pin"></i> ${entry.location}</span>`;
-                if (entry.date) metaString += `<span><i class="ph-bold ph-calendar-blank"></i> ${formatDate(entry.date)}</span>`;
-
+                // DOM
                 const div = document.createElement('div');
-                div.id = `entry-${entry.id}`;
-                div.className = 'entry-item bg-gray-900 p-3 rounded-xl flex items-center justify-between border border-gray-800 hover:border-gray-700';
-                
+                div.className = 'bg-[#1c1c1e] p-3 rounded-2xl border border-[#2c2c2e] flex items-center gap-3 relative overflow-hidden';
                 div.innerHTML = `
-                    <div class="flex items-center gap-3 w-full overflow-hidden">
-                        <div class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center shrink-0">
-                            <i class="ph ${iconClass} ${colorClass} text-xl"></i>
+                    <div class="w-10 h-10 rounded-full ${bg} flex items-center justify-center text-xl shrink-0">
+                        <i class="ph-fill ${icon}"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between items-baseline mb-0.5">
+                            <h4 class="text-white font-bold text-sm truncate pr-2">${e.product}</h4>
+                            <span class="text-white font-bold text-sm">${new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR'}).format(val)}</span>
                         </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex justify-between items-baseline">
-                                <h4 class="text-white font-semibold text-sm truncate">${entry.product}</h4>
-                                <span class="text-white font-bold text-sm">${formatCurrencyDec(entry.calculatedValue)}</span>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2 text-[10px] text-gray-500 font-medium">
+                                <span class="bg-black/40 px-1.5 py-0.5 rounded text-gray-400">${timeLabel}</span>
+                                <span>Kauf: ${new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR', maximumFractionDigits:0}).format(e.amount)}</span>
                             </div>
-                            <div class="flex justify-between items-center mt-0.5">
-                                <div class="flex items-center gap-2 text-[11px] text-gray-400">
-                                    <span class="bg-gray-800 px-1.5 py-0.5 rounded text-gray-300 font-mono">${entry.weight}${unitLabel}</span>
-                                    <span>Kauf: ${formatCurrencyDec(entry.amount)}</span>
-                                </div>
-                                <span class="text-[10px] font-bold ${plColor}">
-                                    ${isProfit ? '▲' : '▼'} ${formatCurrencyDec(Math.abs(entryPL))}
-                                </span>
-                            </div>
-                            ${metaString ? `<div class="mt-2 pt-2 border-t border-gray-800 text-[10px] text-gray-500 flex items-center">${metaString}</div>` : ''}
+                            <span class="text-[10px] font-bold ${col}">${pl >= 0 ? '+' : ''}${plP.toFixed(1)}%</span>
                         </div>
                     </div>
-                    <button onclick="deleteEntry(${entry.id})" class="ml-3 pl-3 border-l border-gray-800 text-gray-600 hover:text-red-500 h-8 flex items-center">
-                        <i class="ph-bold ph-trash"></i>
+                    <button onclick="deleteEntry(${e.id})" class="absolute right-0 top-0 bottom-0 w-12 opacity-0 hover:opacity-100 bg-gradient-to-l from-black via-black to-transparent flex items-center justify-end pr-3 text-red-500 transition-opacity">
+                        <i class="ph-bold ph-trash text-lg"></i>
                     </button>
                 `;
                 elHistory.appendChild(div);
             });
+
+            // Update Totals
+            elCurrentValue.innerText = new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR'}).format(totalVal);
+            
+            const totalPL = totalVal - totalInv;
+            const totalPLP = totalInv > 0 ? (totalPL / totalInv) * 100 : 0;
+            
+            elPL.innerText = (totalPL >= 0 ? "+" : "") + new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR'}).format(totalPL);
+            elPLPercent.innerText = (totalPL >= 0 ? "+" : "") + totalPLP.toFixed(2) + "%";
+            
+            // Colors & Glow
+            const glow = document.getElementById('glow-bg');
+            if(totalPL >= 0) {
+                elPLContainer.className = "bg-green-500/10 px-3 py-1.5 rounded-lg border border-green-500/30 flex items-center gap-2";
+                elPL.className = "text-sm font-bold text-green-400";
+                elPLPercent.className = "text-xs font-bold text-green-300 bg-green-500/20 px-1.5 py-0.5 rounded";
+                glow.className = "absolute -top-10 -right-10 w-48 h-48 bg-green-500 rounded-full blur-[80px] opacity-20 pointer-events-none transition-colors duration-700";
+            } else {
+                elPLContainer.className = "bg-red-500/10 px-3 py-1.5 rounded-lg border border-red-500/30 flex items-center gap-2";
+                elPL.className = "text-sm font-bold text-red-400";
+                elPLPercent.className = "text-xs font-bold text-red-300 bg-red-500/20 px-1.5 py-0.5 rounded";
+                glow.className = "absolute -top-10 -right-10 w-48 h-48 bg-red-500 rounded-full blur-[80px] opacity-20 pointer-events-none transition-colors duration-700";
+            }
+
+            // Split Updates
+            const mPL = mVal - mInv;
+            const mPLP = mInv > 0 ? (mPL / mInv) * 100 : 0;
+            elMetalValue.innerText = new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR', maximumFractionDigits:0}).format(mVal);
+            elMetalPL.innerText = (mPL >= 0 ? "+" : "") + mPLP.toFixed(1) + "%";
+            elMetalPL.className = mPL >= 0 ? "text-[10px] font-bold text-green-500" : "text-[10px] font-bold text-red-500";
+
+            const ePL = eVal - eInv;
+            const ePLP = eInv > 0 ? (ePL / eInv) * 100 : 0;
+            elEtfValue.innerText = new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR', maximumFractionDigits:0}).format(eVal);
+            elEtfPL.innerText = (ePL >= 0 ? "+" : "") + ePLP.toFixed(1) + "%";
+            elEtfPL.className = ePL >= 0 ? "text-[10px] font-bold text-green-500" : "text-[10px] font-bold text-red-500";
         }
     </script>
 </body>
