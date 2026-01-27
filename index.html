@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Portfolio V29</title>
+    <title>Portfolio V30</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -28,7 +28,7 @@
         }
 
         .card-glass {
-            background: rgba(15, 15, 15, 0.9);
+            background: rgba(18, 18, 18, 0.9);
             backdrop-filter: blur(25px);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 30px;
@@ -55,43 +55,53 @@
         .fade-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
-        .modal-overlay { background: rgba(0,0,0,0.97); backdrop-filter: blur(20px); }
+        .modal-overlay { background: rgba(0,0,0,0.97); backdrop-filter: blur(25px); }
         .dist-bar { height: 6px; border-radius: 3px; overflow: hidden; display: flex; background: #111; }
+
+        .btn-action {
+            background: #111;
+            border: 1px solid #222;
+            transition: all 0.2s ease;
+        }
+        .btn-action:active {
+            background: #000;
+            transform: scale(0.96);
+        }
     </style>
 </head>
 <body>
 
-    <div id="viewDashboard" class="flex-1 flex flex-col px-6 pt-4 pb-24 fade-in">
+    <div id="viewDashboard" class="flex-1 flex flex-col px-6 pt-6 pb-24 fade-in">
         
         <div class="flex justify-between items-center mb-6 shrink-0">
             <button onclick="togglePrivacy()" class="text-blue-500 p-2 active:scale-90 transition-all">
                 <i id="iconPrivacy" class="ph-bold ph-eye-slash text-2xl"></i>
             </button>
             <div onclick="forceRefresh()" class="bg-[#111] px-4 py-1.5 rounded-full border border-[#222] flex items-center gap-2 cursor-pointer shadow-lg active:scale-95">
-                <div id="statusDot" class="w-2 h-2 rounded-full" style="background: #333;"></div>
+                <div id="statusDot" class="w-2 h-2 rounded-full bg-gray-600"></div>
                 <span id="priceTicker" class="text-[10px] font-mono text-gray-400 uppercase tracking-wider">Verbindung...</span>
             </div>
             <button onclick="openSettings()" class="text-gray-500 p-2 active:scale-90"><i class="ph-bold ph-gear text-2xl"></i></button>
         </div>
 
-        <div class="text-center mb-6 shrink-0 relative">
-            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-2">Gesamtvermögen</p>
+        <div class="text-center mb-8 shrink-0 relative">
+            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-2">Portfolio Wert</p>
             <h1 id="totalValue" class="text-5xl font-black tracking-tighter mb-4 text-white">••••</h1>
             
             <div class="flex flex-col items-center gap-3">
                 <div class="flex items-center gap-3 bg-[#111] px-5 py-2 rounded-2xl border border-[#222] shadow-xl">
                     <span id="totalPL" class="text-sm font-bold text-gray-300 border-r border-gray-800 pr-3">••••</span>
-                    <span id="totalPLPct" class="text-sm font-black">0%</span>
+                    <span id="totalPLPct" class="text-sm font-black text-gray-500">0%</span>
                 </div>
-                <p id="investedLabel" class="text-[10px] font-bold text-gray-600 uppercase tracking-widest" style="display:none;">
+                <p id="investedRow" class="text-[10px] font-bold text-gray-600 uppercase tracking-widest" style="display:none;">
                     Investiert: <span id="totalInvested" class="text-gray-400">••••</span>
                 </p>
             </div>
         </div>
 
-        <div class="mb-6 shrink-0">
+        <div class="mb-8 shrink-0">
             <div class="flex justify-between text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2 px-1">
-                <span>Verteilung</span>
+                <span>Asset Verteilung</span>
                 <span id="distLabel">Gold 0% · Silber 0% · ETF 0%</span>
             </div>
             <div class="dist-bar">
@@ -110,8 +120,8 @@
                     </div>
                     <div>
                         <div id="goldVal" class="text-xl font-black">••••</div>
-                        <div class="text-[9px] text-gray-500 uppercase font-bold mt-1">Markt: <span id="goldMarket" style="color:#FFD700;">-</span> €/g</div>
-                        <div id="goldInvLabel" class="text-[9px] text-gray-600 uppercase font-bold" style="display:none;">In: <span id="goldInv">••••</span></div>
+                        <div class="text-[9px] text-gray-500 uppercase font-bold mt-1 tracking-tighter">Markt: <span id="goldMarket" class="text-yellow-500">-</span> €/g</div>
+                        <div id="goldInvRow" class="text-[9px] text-gray-600 uppercase font-bold" style="display:none;">In: <span id="goldInv">••••</span></div>
                     </div>
                 </button>
                 <button onclick="openHistory('silver')" class="card-glass grad-silver p-4 h-36 text-left flex flex-col justify-between shadow-xl active:scale-95 transition-all">
@@ -121,29 +131,29 @@
                     </div>
                     <div>
                         <div id="silverVal" class="text-xl font-black">••••</div>
-                        <div class="text-[9px] text-gray-500 uppercase font-bold mt-1">Markt: <span id="silverMarket" style="color:#aaa;">-</span> €/g</div>
-                        <div id="silverInvLabel" class="text-[9px] text-gray-600 uppercase font-bold" style="display:none;">In: <span id="silverInv">••••</span></div>
+                        <div class="text-[9px] text-gray-500 uppercase font-bold mt-1 tracking-tighter">Markt: <span id="silverMarket" class="text-gray-300">-</span> €/g</div>
+                        <div id="silverInvRow" class="text-[9px] text-gray-600 uppercase font-bold" style="display:none;">In: <span id="silverInv">••••</span></div>
                     </div>
                 </button>
             </div>
             
             <button onclick="openHistory('etf')" class="card-glass grad-etf p-5 h-28 flex items-center justify-between shadow-xl active:scale-95 transition-all">
                 <div>
-                    <span class="text-[10px] font-bold text-blue-500 uppercase block mb-1 tracking-widest">S&P 500 ETF (SXR8)</span>
+                    <span class="text-[10px] font-bold text-blue-500 uppercase block mb-1 tracking-widest">S&P 500 ETF</span>
                     <div id="etfVal" class="text-2xl font-black">••••</div>
-                    <div class="text-[9px] text-gray-500 uppercase font-bold mt-1">Kurs aktuell: <span id="etfMarket">0.00</span> €</div>
+                    <div class="text-[9px] text-gray-500 uppercase font-bold mt-1 tracking-tighter">Börsenkurs: <span id="etfMarket">0.00</span> €</div>
                 </div>
                 <div class="text-right">
                     <span id="etfPL" class="text-xs font-black bg-black/40 px-3 py-1 rounded-xl mb-2 block border border-white/5">0%</span>
-                    <span id="etfInvLabel" class="text-[10px] text-gray-500 font-bold uppercase block" style="display:none;">In: <span id="etfInv">••••</span></span>
+                    <span id="etfInvRow" class="text-[10px] text-gray-500 font-bold uppercase block" style="display:none;">In: <span id="etfInv">••••</span></span>
                 </div>
             </button>
         </div>
 
         <div class="flex-1"></div>
 
-        <button onclick="openModal()" class="w-full h-16 bg-[#111] border border-[#222] text-white rounded-[24px] text-xs font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-2xl active:bg-[#000] transition-all">
-            <i class="ph-bold ph-plus-circle text-xl text-blue-500"></i> Kauf eintragen
+        <button onclick="openModal()" class="w-full h-16 btn-action text-white rounded-[24px] text-xs font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-2xl">
+            <i class="ph-bold ph-plus-circle text-xl text-blue-500"></i> Kauf hinzufügen
         </button>
 
         <div class="text-center mt-4">
@@ -156,7 +166,7 @@
     <div id="viewHistory" class="fixed inset-0 bg-black z-40 hidden flex flex-col px-6 pt-12 pb-8">
         <div class="flex justify-between items-center mb-8 shrink-0">
             <div>
-                <h2 id="histTitle" class="text-3xl font-black uppercase tracking-tighter">Details</h2>
+                <h2 id="histTitle" class="text-3xl font-black uppercase tracking-tighter text-white">Details</h2>
                 <div id="histSummary" class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1"></div>
             </div>
             <button onclick="closeHistory()" class="w-12 h-12 bg-[#111] border border-[#222] rounded-full flex items-center justify-center active:scale-90"><i class="ph-bold ph-x text-xl"></i></button>
@@ -166,22 +176,20 @@
 
     <div id="settingsModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-6">
         <div class="bg-[#0f0f0f] border border-[#222] w-full max-w-sm rounded-[40px] p-8 shadow-2xl">
-            <h3 class="text-white font-black uppercase text-xs mb-8 tracking-widest">Einstellungen</h3>
+            <h3 class="text-white font-black uppercase text-xs mb-8 tracking-widest text-center">Einstellungen</h3>
             <div class="space-y-4">
-                <button onclick="exportBackup()" class="w-full h-14 bg-white text-black font-black rounded-2xl text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all"><i class="ph-bold ph-download-simple"></i> Backup Sichern</button>
-                <button onclick="document.getElementById('fileInp').click()" class="w-full h-14 bg-[#1a1a1a] text-white font-black rounded-2xl text-[11px] uppercase tracking-widest border border-[#333] flex items-center justify-center gap-3 active:bg-black transition-all"><i class="ph-bold ph-upload-simple"></i> Backup Laden</button>
+                <button onclick="exportBackup()" class="w-full h-14 bg-white text-black font-black rounded-2xl text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95"><i class="ph-bold ph-download-simple"></i> Backup Sichern</button>
+                <button onclick="document.getElementById('fileInp').click()" class="w-full h-14 bg-[#1a1a1a] text-white font-black rounded-2xl text-[11px] uppercase tracking-widest border border-[#333] flex items-center justify-center gap-3"><i class="ph-bold ph-upload-simple"></i> Backup Laden</button>
                 <input type="file" id="fileInp" class="hidden" onchange="importBackup(this)">
                 <div class="h-px bg-[#222] my-4"></div>
-                <button onclick="closeSettings()" class="w-full h-12 text-gray-500 text-[10px] font-bold uppercase text-center w-full">Schließen</button>
+                <button onclick="closeSettings()" class="w-full h-12 text-gray-500 text-[10px] font-bold uppercase text-center">Schließen</button>
             </div>
         </div>
     </div>
 
     <div id="entryModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4">
         <div class="bg-[#0f0f0f] border border-[#222] w-full max-w-sm rounded-[40px] p-8 shadow-2xl relative">
-            <button onclick="closeModal()" class="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors">
-                <i class="ph-bold ph-x text-2xl"></i>
-            </button>
+            <button onclick="closeModal()" class="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors"><i class="ph-bold ph-x text-2xl"></i></button>
             <h3 id="modalTitle" class="text-white font-black uppercase tracking-tighter text-2xl mb-8 text-center">Kauf Details</h3>
             <div class="space-y-5">
                 <div class="grid grid-cols-2 gap-3">
@@ -190,7 +198,7 @@
                 </div>
                 <div>
                     <label class="text-[10px] text-yellow-500 font-black uppercase block mb-1.5 ml-1">Kaufpreis in Euro</label>
-                    <input type="number" id="inpAmt" placeholder="0.00" step="0.01" class="w-full h-16 px-5 text-2xl font-black tracking-tight">
+                    <input type="number" id="inpAmt" placeholder="0.00" step="0.01" class="w-full h-16 px-5 text-2xl font-black">
                 </div>
                 <div id="weightBox">
                     <label id="lblWeight" class="text-[10px] text-gray-500 font-black uppercase block mb-1.5 ml-1">Menge / Gramm</label>
@@ -198,7 +206,7 @@
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <input type="date" id="inpDate" class="h-14 px-3 text-xs text-center font-bold">
-                    <input type="text" id="inpLoc" placeholder="Ort" class="h-14 px-4 text-xs font-bold uppercase tracking-widest">
+                    <input type="text" id="inpLoc" placeholder="Ort" class="h-14 px-4 text-xs font-bold uppercase">
                 </div>
             </div>
             <div class="mt-8 flex gap-3">
@@ -209,79 +217,60 @@
     </div>
 
     <script>
-        let entries = JSON.parse(localStorage.getItem('port_v29_data')) || [];
+        // --- SPEICHER ---
+        let entries = JSON.parse(localStorage.getItem('port_v30_data')) || [];
         if(entries.length === 0) {
-            entries = JSON.parse(localStorage.getItem('db')) || [];
+            entries = JSON.parse(localStorage.getItem('port_v29_data')) || 
+                      JSON.parse(localStorage.getItem('db')) || [];
         }
 
         let prices = { gold: 0, silver: 0, etf: 0 };
-        let privacyMode = true; [span_13](start_span)//[span_13](end_span)
+        let privacyMode = true; // STARTET IMMER ZU
         let editId = null;
 
         const $ = (id) => document.getElementById(id);
 
-        async function init() {
-            render();
-            await forceRefresh();
-            setInterval(forceRefresh, 600000); 
-        }
-
-        // --- PREIS-SYSTEM (Engine aus Depot-App) ---
+        // --- PREIS-ENGINE (Basierend auf deiner Depot-App) ---
         async function forceRefresh() {
             const dot = $('statusDot');
-            dot.style.background = "orange"; [span_14](start_span)//[span_14](end_span)
+            dot.style.background = "orange";
             $('syncIcon').classList.add('spin');
-            
-            try {
-                [span_15](start_span)// Gold & Silber via Coingecko[span_15](end_span)
-                const timestamp = new Date().getTime();
-                const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=pax-gold,kinesis-silver&vs_currencies=eur&t=${timestamp}`);
-                if (!res.ok) throw new Error("Offline");
-                const data = await res.json();
-                
-                prices.gold = data['pax-gold'].eur / 31.1035; [span_16](start_span)//[span_16](end_span)
-                prices.silver = data['kinesis-silver'].eur / 31.1035; [span_17](start_span)//[span_17](end_span)
+            $('priceTicker').innerText = "Abfrage...";
 
-                // ETF via Yahoo
+            try {
+                // Edelmetalle via Coingecko
+                const timestamp = new Date().getTime();
+                const resMetal = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=pax-gold,kinesis-silver&vs_currencies=eur&t=${timestamp}`);
+                const dataMetal = await resMetal.json();
+                
+                if(dataMetal['pax-gold']) prices.gold = dataMetal['pax-gold'].eur / 31.1035;
+                if(dataMetal['kinesis-silver']) prices.silver = dataMetal['kinesis-silver'].eur / 31.1035;
+
+                // ETF via Yahoo (Proxy)
                 const proxy = "https://api.allorigins.win/raw?url=";
                 const etfUrl = `https://query1.finance.yahoo.com/v8/finance/chart/SXR8.DE?interval=1m&range=1d&ts=${timestamp}`;
                 const resEtf = await fetch(proxy + encodeURIComponent(etfUrl));
                 const dataEtf = await resEtf.json();
                 prices.etf = dataEtf.chart.result[0].meta.regularMarketPrice;
 
-                dot.style.background = "#32d74b"; [span_18](start_span)//[span_18](end_span)
+                dot.style.background = "#32d74b";
                 $('priceTicker').innerText = `Au: ${prices.gold.toFixed(2)}€ | Ag: ${prices.silver.toFixed(2)}€`;
                 $('lastUpdate').innerText = new Date().toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
                 
                 $('goldMarket').innerText = prices.gold.toFixed(2);
                 $('silverMarket').innerText = prices.silver.toFixed(2);
                 $('etfMarket').innerText = prices.etf.toFixed(2);
+
             } catch(e) { 
-                dot.style.background = "red"; [span_19](start_span)//[span_19](end_span)
+                console.error("Fehler beim Laden:", e);
+                dot.style.background = "red";
                 $('priceTicker').innerText = "Offline";
             }
             render();
             $('syncIcon').classList.remove('spin');
         }
 
-        function fmt(num, suffix = ' €') {
-            if (privacyMode) return "••••"; [span_20](start_span)//[span_20](end_span)
-            return num.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + suffix;
-        }
-
-        function fmt0(num, suffix = ' €') {
-            if (privacyMode) return "••••";
-            return num.toLocaleString('de-DE', {minimumFractionDigits: 0, maximumFractionDigits: 0}) + suffix;
-        }
-
-        function togglePrivacy() { 
-            privacyMode = !privacyMode; [span_21](start_span)//[span_21](end_span)
-            $('iconPrivacy').className = privacyMode ? "ph-bold ph-eye-slash text-2xl text-blue-500" : "ph-bold ph-eye text-2xl text-gray-500"; [span_22](start_span)//[span_22](end_span)
-            render();
-            if(!($('viewHistory').classList.contains('hidden'))) openHistory($('histTitle').innerText.toLowerCase());
-        }
-
-        // --- BERECHNUNG & RENDER ---
+        // --- RENDER (JS-basiert für 100% Privacy) ---
         function render() {
             let tVal=0, tInv=0, gVal=0, gInv=0, sVal=0, sInv=0, eVal=0, eInv=0;
 
@@ -296,20 +285,32 @@
                 tVal += val;
             });
 
-            $('totalValue').innerText = fmt(tVal);
-            $('totalInvested').innerText = fmt(tInv);
+            // Hilfsfunktion für Privacy
+            const pFmt = (num, isCurrency = true) => {
+                if (privacyMode) return "••••";
+                return num.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + (isCurrency ? " €" : "");
+            }
+            const pFmt0 = (num) => {
+                if (privacyMode) return "••••";
+                return num.toLocaleString('de-DE', {minimumFractionDigits: 0, maximumFractionDigits: 0}) + " €";
+            }
+
+            // Summen
+            $('totalValue').innerText = pFmt(tVal);
+            $('totalInvested').innerText = pFmt(tInv);
             const pl = tVal - tInv;
-            $('totalPL').innerText = (pl>=0 && !privacyMode ? '+ ' : '') + fmt(pl);
+            $('totalPL').innerText = (pl>=0 && !privacyMode ? '+ ' : '') + pFmt(pl);
             $('totalPLPct').innerText = (tInv > 0 ? ((pl/tInv)*100).toFixed(2) : '0') + "%";
             $('totalPLPct').className = "text-sm font-black " + (pl>=0 ? "text-green-500" : "text-red-500");
 
-            [span_23](start_span)// Info-Zeilen ausblenden wenn Privacy an[span_23](end_span)
-            const showHide = privacyMode ? 'none' : 'block';
-            $('investedLabel').style.display = showHide;
-            $('goldInvLabel').style.display = showHide;
-            $('silverInvLabel').style.display = showHide;
-            $('etfInvLabel').style.display = showHide;
+            // Zeilen ein/ausblenden
+            const visibility = privacyMode ? 'none' : 'block';
+            $('investedRow').style.display = visibility;
+            $('goldInvRow').style.display = visibility;
+            $('silverInvRow').style.display = visibility;
+            $('etfInvRow').style.display = visibility;
 
+            // Verteilung
             const gPct = tVal > 0 ? (gVal/tVal)*100 : 0;
             const sPct = tVal > 0 ? (sVal/tVal)*100 : 0;
             const ePct = tVal > 0 ? (eVal/tVal)*100 : 0;
@@ -318,17 +319,32 @@
             $('barEtf').style.width = ePct + "%";
             $('distLabel').innerText = `G ${gPct.toFixed(0)}% · S ${sPct.toFixed(0)}% · E ${ePct.toFixed(0)}%`;
 
-            updateCard('gold', gVal, gInv);
-            updateCard('silver', sVal, sInv);
-            updateCard('etf', eVal, eInv);
+            // Karten
+            $(`goldVal`).innerText = pFmt0(gVal);
+            $(`goldInv`).innerText = pFmt0(gInv);
+            const gP = gInv > 0 ? (((gVal-gInv)/gInv)*100).toFixed(1) : 0;
+            $(`goldPL`).innerText = (gVal-gInv>=0?'+':'') + gP + "%";
+            $(`goldPL`).className = "text-[10px] font-bold " + (gVal-gInv>=0 ? "text-green-500" : "text-red-500");
+
+            $(`silverVal`).innerText = pFmt0(sVal);
+            $(`silverInv`).innerText = pFmt0(sInv);
+            const sP = sInv > 0 ? (((sVal-sInv)/sInv)*100).toFixed(1) : 0;
+            $(`silverPL`).innerText = (sVal-sInv>=0?'+':'') + sP + "%";
+            $(`silverPL`).className = "text-[10px] font-bold " + (sVal-sInv>=0 ? "text-green-500" : "text-red-500");
+
+            $(`etfVal`).innerText = pFmt0(eVal);
+            $(`etfInv`).innerText = pFmt0(eInv);
+            const eP = eInv > 0 ? (((eVal-eInv)/eInv)*100).toFixed(1) : 0;
+            $(`etfPL`).innerText = (eVal-eInv>=0?'+':'') + eP + "%";
+            $(`etfPL`).className = "text-xs font-black bg-black/40 px-3 py-1 rounded-xl mb-2 block border border-white/5 " + (eVal-eInv>=0 ? "text-green-500" : "text-red-500");
         }
 
-        function updateCard(id, v, i) {
-            $(`${id}Val`).innerText = fmt0(v);
-            $(`${id}Inv`).innerText = fmt0(i);
-            const p = i > 0 ? (((v-i)/i)*100).toFixed(1) : 0;
-            $(`${id}PL`).innerText = (v-i>=0?'+':'') + p + "%";
-            $(`${id}PL`).className = "text-[10px] font-bold " + (v-i>=0 ? "text-green-500" : "text-red-500");
+        // --- NAVIGATION ---
+        function togglePrivacy() {
+            privacyMode = !privacyMode;
+            $('iconPrivacy').className = privacyMode ? "ph-bold ph-eye-slash text-2xl text-blue-500" : "ph-bold ph-eye text-2xl text-gray-500";
+            render();
+            if(!($('viewHistory').classList.contains('hidden'))) openHistory($('histTitle').innerText.toLowerCase());
         }
 
         function openHistory(cat) {
@@ -337,7 +353,8 @@
             const list = $('historyItems'); list.innerHTML = '';
             const filtered = entries.filter(e => e.category === cat).sort((a,b) => new Date(b.date) - new Date(a.date));
             let cInv = filtered.reduce((acc, curr) => acc + curr.amount, 0);
-            $('histSummary').innerText = privacyMode ? "Investiert: ••••" : `Investiert: ${fmt(cInv)} | ${filtered.length} Käufe`;
+            
+            $('histSummary').innerText = privacyMode ? "Investiert: ••••" : `Investiert: ${cInv.toLocaleString('de-DE')} € | ${filtered.length} Käufe`;
             
             filtered.forEach(e => {
                 let p = (e.category==='gold') ? prices.gold : (e.category==='silver' ? prices.silver : prices.etf);
@@ -348,18 +365,19 @@
                 const div = document.createElement('div');
                 div.className = "bg-[#111] p-6 rounded-[28px] border border-[#222] flex justify-between items-center active:scale-95 transition-all";
                 div.onclick = () => openModal(e.id);
-                [span_24](start_span)//[span_24](end_span)
+                
+                const valTxt = privacyMode ? "••••" : curVal.toLocaleString('de-DE', {minimumFractionDigits:2}) + " €";
+                const invTxt = privacyMode ? "••••" : e.amount.toLocaleString('de-DE', {minimumFractionDigits:0}) + " €";
+
                 div.innerHTML = `
                     <div>
                         <div class="text-sm font-black text-white mb-1 uppercase tracking-wider">${e.product}</div>
-                        <div class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">
-                            ${new Date(e.date).toLocaleDateString()} • ${e.weight.toFixed(3)} ${e.category==='etf'?'Stk':'g'}
-                        </div>
+                        <div class="text-[9px] text-gray-500 font-bold uppercase">${new Date(e.date).toLocaleDateString()} • ${e.weight.toFixed(3)} ${e.category==='etf'?'Stk':'g'}</div>
                     </div>
                     <div class="text-right">
-                        <div class="text-base font-black ${pl>=0 ? 'text-green-500' : 'text-red-500'}">${fmt(curVal)}</div>
-                        <div class="text-[9px] font-bold text-gray-600 uppercase tracking-widest" style="display:${privacyMode?'none':'block'}">
-                            Bezahlt: ${fmt0(e.amount)} (${pl>=0?'+':''}${plP.toFixed(1)}%)
+                        <div class="text-base font-black ${pl>=0 ? 'text-green-500' : 'text-red-500'}">${valTxt}</div>
+                        <div class="text-[9px] font-bold text-gray-600 uppercase tracking-widest ${privacyMode?'hidden':'block'}">
+                            Gekauft für: ${invTxt} (${pl>=0?'+':''}${plP.toFixed(1)}%)
                         </div>
                     </div>
                 `;
@@ -392,34 +410,32 @@
                     const r = await fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/SXR8.DE?period1=${ts}&period2=${ts+86400}&interval=1d`));
                     const j = await r.json();
                     weight = amt / j.chart.result[0].indicators.quote[0].close[0];
-                } catch(e) { weight = parseFloat(prompt("ETF-Kurs damals nicht gefunden. Menge?", "0")) || 0; }
+                } catch(e) { weight = parseFloat(prompt("Historischer Kurs fehlt. Menge?", "0")) || 0; }
             }
 
             const item = { id: editId || Date.now(), category: cat, product: $('inpProd').value || cat.toUpperCase(), amount: amt, weight: weight || 0, date: date, location: $('inpLoc').value };
             if(editId) entries = entries.map(x => x.id === editId ? item : x); else entries.unshift(item);
-            localStorage.setItem('port_v29_data', JSON.stringify(entries));
+            localStorage.setItem('port_v30_data', JSON.stringify(entries));
             btn.innerText = "Speichern"; btn.disabled = false; closeModal(); render();
             if(!($('viewHistory').classList.contains('hidden'))) openHistory(cat);
         }
 
+        // --- UTILS ---
         function exportBackup() {
             const a = document.createElement('a'); a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(entries));
-            a.download = `portfolio_backup_${new Date().toISOString().split('T')[0]}.json`; a.click();
+            a.download = `portfolio_backup.json`; a.click();
         }
         function importBackup(el) {
             const r = new FileReader(); r.onload = e => {
-                const data = JSON.parse(e.target.result);
-                entries = Array.isArray(data) ? data : (data.entries || []);
-                localStorage.setItem('port_v29_data', JSON.stringify(entries)); location.reload();
+                const d = JSON.parse(e.target.result);
+                entries = Array.isArray(d) ? d : (d.entries || []);
+                localStorage.setItem('port_v30_data', JSON.stringify(entries)); location.reload();
             }; r.readAsText(el.files[0]);
         }
         function manualPricePrompt() {
-            const pGold = prompt("Goldpreis pro Gramm (€):", prices.gold.toFixed(2));
-            if(pGold) prices.gold = parseFloat(pGold.replace(',', '.'));
-            const pSilver = prompt("Silberpreis pro Gramm (€):", prices.silver.toFixed(2));
-            if(pSilver) prices.silver = parseFloat(pSilver.replace(',', '.'));
-            const pEtf = prompt("ETF Kurs (€):", prices.etf.toFixed(2));
-            if(pEtf) prices.etf = parseFloat(pEtf.replace(',', '.'));
+            const pG = prompt("Gold €/g:", prices.gold.toFixed(2)); if(pG) prices.gold = parseFloat(pG.replace(',','.'));
+            const pS = prompt("Silber €/g:", prices.silver.toFixed(2)); if(pS) prices.silver = parseFloat(pS.replace(',','.'));
+            const pE = prompt("ETF Kurs:", prices.etf.toFixed(2)); if(pE) prices.etf = parseFloat(pE.replace(',','.'));
             render();
         }
         function closeHistory() { $('viewHistory').classList.add('hidden'); }
@@ -431,9 +447,11 @@
         }
         function openSettings() { $('settingsModal').classList.remove('hidden'); $('settingsModal').classList.add('flex'); }
         function closeSettings() { $('settingsModal').classList.add('hidden'); $('settingsModal').classList.remove('flex'); }
-        function deleteEntry() { if(confirm("Löschen?")) { entries = entries.filter(x => x.id !== editId); localStorage.setItem('port_v29_data', JSON.stringify(entries)); closeModal(); closeHistory(); render(); } }
+        function deleteEntry() { if(confirm("Löschen?")) { entries = entries.filter(x => x.id !== editId); localStorage.setItem('port_v30_data', JSON.stringify(entries)); closeModal(); closeHistory(); render(); } }
 
-        init();
+        // --- START ---
+        render();
+        forceRefresh();
     </script>
 </body>
 </html>
