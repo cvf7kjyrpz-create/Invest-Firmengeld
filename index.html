@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Portfolio V35</title>
+    <title>Portfolio V36</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -217,10 +217,10 @@
 
     <script>
         // --- SPEICHER ---
-        let entries = JSON.parse(localStorage.getItem('port_v35_data')) || [];
+        let entries = JSON.parse(localStorage.getItem('port_v36_data')) || [];
         if(entries.length === 0) {
-            entries = JSON.parse(localStorage.getItem('port_v34_data')) || 
-                      JSON.parse(localStorage.getItem('port_v33_data')) || [];
+            entries = JSON.parse(localStorage.getItem('port_v35_data')) || 
+                      JSON.parse(localStorage.getItem('port_v34_data')) || [];
         }
 
         let prices = { gold: 0, silver: 0, etf: 0 };
@@ -229,7 +229,7 @@
 
         const $ = (id) => document.getElementById(id);
 
-        // --- PREIS-ENGINE (Basierend auf Depot-App final) ---
+        // --- PREIS-ENGINE ---
         async function forceRefresh() {
             const dot = $('statusDot');
             dot.style.background = "orange";
@@ -247,7 +247,6 @@
 
                 // 2. ETF via Yahoo Finance
                 const proxyList = ["https://api.allorigins.win/raw?url=", "https://corsproxy.io/?"];
-                let etfLoaded = false;
                 for (let proxy of proxyList) {
                     try {
                         const etfUrl = `https://query1.finance.yahoo.com/v8/finance/chart/SXR8.DE?interval=1m&range=1d&ts=${ts}`;
@@ -255,7 +254,7 @@
                         const dataEtf = await resEtf.json();
                         const result = dataEtf.chart.result[0];
                         prices.etf = result.meta.regularMarketPrice || result.meta.previousClose;
-                        if (prices.etf > 0) { etfLoaded = true; break; }
+                        if (prices.etf > 0) break;
                     } catch(e) {}
                 }
 
@@ -337,7 +336,7 @@
             if(!($('viewHistory').classList.contains('hidden'))) openHistory($('histTitle').innerText.toLowerCase());
         }
 
-        // --- HISTORY (Korrektur für individuelle Preise) ---
+        // --- HISTORY (ANZEIGE WECHSEL: KAUFPREIS GROSS & FARBIG) ---
         function openHistory(cat) {
             $('viewHistory').classList.remove('hidden');
             $('histTitle').innerText = cat.toUpperCase();
@@ -355,9 +354,11 @@
                 div.className = "bg-[#111] p-6 rounded-[28px] border border-[#222] flex justify-between items-center active:scale-95 transition-all";
                 div.onclick = () => openModal(e.id);
                 
-                // Anzeige korrigiert: curVal ist Marktwert, e.amount ist Einkaufspreis
-                const valTxt = privacyMode ? "••••" : curVal.toLocaleString('de-DE', {minimumFractionDigits:2}) + " €";
-                const invTxt = privacyMode ? "••••" : e.amount.toLocaleString('de-DE', {minimumFractionDigits:2}) + " €";
+                // HIER IST DER TAUSCH:
+                // Gross (oben) = Dein Kaufpreis (e.amount) -> mit Farbe
+                // Klein (unten) = Aktueller Wert (curVal)
+                const mainTxt = privacyMode ? "••••" : e.amount.toLocaleString('de-DE', {minimumFractionDigits:2}) + " €";
+                const subTxt = privacyMode ? "••••" : curVal.toLocaleString('de-DE', {minimumFractionDigits:2}) + " €";
                 
                 div.innerHTML = `
                     <div>
@@ -365,9 +366,9 @@
                         <div class="text-[9px] text-gray-500 font-bold uppercase">${new Date(e.date).toLocaleDateString()} • ${e.weight.toFixed(3)} ${e.category==='etf'?'Stk':'g'}</div>
                     </div>
                     <div class="text-right">
-                        <div class="text-base font-black ${pl>=0 ? 'text-green-500' : 'text-red-500'}">${valTxt}</div>
+                        <div class="text-base font-black ${pl>=0 ? 'text-green-500' : 'text-red-500'}">${mainTxt}</div>
                         <div class="text-[9px] font-bold text-gray-600 uppercase tracking-widest ${privacyMode?'hidden':'block'}">
-                            Einkauf: ${invTxt} (${(pl>=0?'+':'') + plP.toFixed(1) + "%"})
+                            Wert: ${subTxt} (${(pl>=0?'+':'') + plP.toFixed(1) + "%"})
                         </div>
                     </div>`;
                 list.appendChild(div);
@@ -402,7 +403,7 @@
             }
             const item = { id: editId || Date.now(), category: cat, product: $('inpProd').value || cat.toUpperCase(), amount: amt, weight: weight || 0, date: date, location: $('inpLoc').value };
             if(editId) entries = entries.map(x => x.id === editId ? item : x); else entries.unshift(item);
-            localStorage.setItem('port_v35_data', JSON.stringify(entries));
+            localStorage.setItem('port_v36_data', JSON.stringify(entries));
             btn.innerText = "Speichern"; btn.disabled = false; closeModal(); render();
             if(!($('viewHistory').classList.contains('hidden'))) openHistory(cat);
         }
@@ -415,7 +416,7 @@
             const r = new FileReader(); r.onload = e => {
                 const data = JSON.parse(e.target.result);
                 entries = Array.isArray(data) ? data : (data.entries || []);
-                localStorage.setItem('port_v35_data', JSON.stringify(entries)); location.reload();
+                localStorage.setItem('port_v36_data', JSON.stringify(entries)); location.reload();
             }; r.readAsText(el.files[0]);
         }
         function closeHistory() { $('viewHistory').classList.add('hidden'); }
@@ -423,7 +424,7 @@
         function openSettings() { $('settingsModal').classList.remove('hidden'); $('settingsModal').classList.add('flex'); }
         function closeSettings() { $('settingsModal').classList.add('hidden'); $('settingsModal').classList.remove('flex'); }
         function updateModalUI() { const cat = $('inpCat').value; $('weightBox').style.display = (cat === 'etf' && !editId) ? 'none' : 'block'; $('lblWeight').innerText = cat === 'etf' ? "Anteile (Stück)" : "Menge / Gramm"; }
-        function deleteEntry() { if(confirm("Löschen?")) { entries = entries.filter(x => x.id !== editId); localStorage.setItem('port_v35_data', JSON.stringify(entries)); closeModal(); closeHistory(); render(); } }
+        function deleteEntry() { if(confirm("Löschen?")) { entries = entries.filter(x => x.id !== editId); localStorage.setItem('port_v36_data', JSON.stringify(entries)); closeModal(); closeHistory(); render(); } }
 
         // START
         render();
