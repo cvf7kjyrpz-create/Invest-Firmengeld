@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Portfolio V33</title>
+    <title>Portfolio V34</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -68,7 +68,7 @@
 </head>
 <body class="privacy-active">
 
-    <div id="viewDashboard" class="flex-1 flex flex-col px-6 pt-6 pb-20">
+    <div id="viewDashboard" class="flex-1 flex flex-col px-6 pt-6 pb-12">
         
         <div class="flex justify-between items-center mb-6 shrink-0">
             <button onclick="togglePrivacy()" class="text-blue-500 p-2 active:scale-90 transition-all">
@@ -98,8 +98,8 @@
 
         <div class="mb-6 shrink-0">
             <div class="flex justify-between text-[9px] font-bold uppercase tracking-widest text-gray-500 mb-2 px-1">
-                <span>Verteilung</span>
-                <span id="distLabel">Assets werden geladen...</span>
+                <span>Asset Verteilung</span>
+                <span id="distLabel">Lade Daten...</span>
             </div>
             <div class="dist-bar">
                 <div id="barGold" class="h-full bg-yellow-500 transition-all duration-700" style="width: 0%"></div>
@@ -117,12 +117,8 @@
                     </div>
                     <div>
                         <div id="goldVal" class="text-xl font-black">••••</div>
-                        <div class="text-[9px] text-gray-500 uppercase font-bold mt-1 tracking-tighter">
-                            Markt: <span id="goldMarketRow">••••</span>
-                        </div>
-                        <div class="text-[9px] text-gray-600 uppercase font-bold">
-                            In: <span id="goldInv">••••</span>
-                        </div>
+                        <div class="text-[9px] text-gray-500 uppercase font-bold mt-1 tracking-tighter">Markt: <span id="goldMarketRow">••••</span></div>
+                        <div class="text-[9px] text-gray-600 uppercase font-bold">In: <span id="goldInv">••••</span></div>
                     </div>
                 </button>
                 <button onclick="openHistory('silver')" class="card-glass grad-silver p-4 h-36 text-left flex flex-col justify-between shadow-xl active:scale-95 transition-all">
@@ -132,12 +128,8 @@
                     </div>
                     <div>
                         <div id="silverVal" class="text-xl font-black">••••</div>
-                        <div class="text-[9px] text-gray-500 uppercase font-bold mt-1 tracking-tighter">
-                            Markt: <span id="silverMarketRow">••••</span>
-                        </div>
-                        <div class="text-[9px] text-gray-600 uppercase font-bold">
-                            In: <span id="silverInv">••••</span>
-                        </div>
+                        <div class="text-[9px] text-gray-500 uppercase font-bold mt-1 tracking-tighter">Markt: <span id="silverMarketRow">••••</span></div>
+                        <div class="text-[9px] text-gray-600 uppercase font-bold">In: <span id="silverInv">••••</span></div>
                     </div>
                 </button>
             </div>
@@ -146,9 +138,7 @@
                 <div>
                     <span class="text-[10px] font-bold text-blue-500 uppercase block mb-1 tracking-widest">S&P 500 ETF (SXR8)</span>
                     <div id="etfVal" class="text-2xl font-black">••••</div>
-                    <div class="text-[9px] text-gray-500 uppercase font-bold mt-1 tracking-tighter">
-                        Marktpreis: <span id="etfMarketRow">••••</span>
-                    </div>
+                    <div class="text-[9px] text-gray-500 uppercase font-bold mt-1 tracking-tighter">Marktpreis: <span id="etfMarketRow">••••</span></div>
                 </div>
                 <div class="text-right">
                     <span id="etfPL" class="text-xs font-black bg-black/40 px-3 py-1 rounded-xl mb-2 block border border-white/5">0%</span>
@@ -159,9 +149,9 @@
 
         <div class="flex-1"></div>
 
-        <div class="flex justify-center">
-            <button onclick="openModal()" class="w-10/12 h-12 btn-action text-white rounded-full text-[10px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-2xl">
-                <i class="ph-bold ph-plus-circle text-lg text-blue-500"></i> Kauf eintragen
+        <div class="flex justify-center mt-10">
+            <button onclick="openModal()" class="w-8/12 h-10 btn-action text-white rounded-full text-[9px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-2xl">
+                <i class="ph-bold ph-plus-circle text-base text-blue-500"></i> Kauf hinzufügen
             </button>
         </div>
 
@@ -227,10 +217,10 @@
 
     <script>
         // --- SPEICHER ---
-        let entries = JSON.parse(localStorage.getItem('port_v33_data')) || [];
+        let entries = JSON.parse(localStorage.getItem('port_v34_data')) || [];
         if(entries.length === 0) {
-            entries = JSON.parse(localStorage.getItem('port_v32_data')) || 
-                      JSON.parse(localStorage.getItem('db')) || [];
+            entries = JSON.parse(localStorage.getItem('port_v33_data')) || 
+                      JSON.parse(localStorage.getItem('port_v32_data')) || [];
         }
 
         let prices = { gold: 0, silver: 0, etf: 0 };
@@ -239,7 +229,7 @@
 
         const $ = (id) => document.getElementById(id);
 
-        // --- PREIS-ENGINE (Yahoo Multi-Proxy & Coingecko) ---
+        // --- PREIS-ENGINE ---
         async function forceRefresh() {
             const dot = $('statusDot');
             dot.style.background = "orange";
@@ -252,16 +242,11 @@
                 // 1. Gold & Silber via Coingecko
                 const resMetal = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=pax-gold,kinesis-silver&vs_currencies=eur&t=${ts}`);
                 const dataMetal = await resMetal.json();
-                
                 if(dataMetal['pax-gold']) prices.gold = dataMetal['pax-gold'].eur / 31.1034768;
                 if(dataMetal['kinesis-silver']) prices.silver = dataMetal['kinesis-silver'].eur / 31.1034768;
 
-                // 2. ETF Multi-Proxy Logik
-                const proxyList = [
-                    "https://api.allorigins.win/raw?url=",
-                    "https://corsproxy.io/?"
-                ];
-                
+                // 2. ETF via Yahoo Finance
+                const proxyList = ["https://api.allorigins.win/raw?url=", "https://corsproxy.io/?"];
                 let etfLoaded = false;
                 for (let proxy of proxyList) {
                     try {
@@ -271,7 +256,7 @@
                         const result = dataEtf.chart.result[0];
                         prices.etf = result.meta.regularMarketPrice || result.meta.previousClose;
                         if (prices.etf > 0) { etfLoaded = true; break; }
-                    } catch(e) { console.warn("Proxy-Fehler, versuche nächsten..."); }
+                    } catch(e) {}
                 }
 
                 if (prices.gold > 0 || prices.etf > 0) {
@@ -279,7 +264,6 @@
                     $('priceTicker').innerText = `Live-Kurse aktiv`;
                     $('lastUpdate').innerText = new Date().toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
                 }
-
             } catch(e) { 
                 dot.style.background = "red";
                 $('priceTicker').innerText = "Offline";
@@ -288,7 +272,7 @@
             $('syncIcon').classList.remove('spin');
         }
 
-        // --- RENDER (Echter Privacy & Korrekte Listenpreise) ---
+        // --- RENDER ---
         function render() {
             let tVal=0, tInv=0, gVal=0, gInv=0, sVal=0, sInv=0, eVal=0, eInv=0;
 
@@ -296,7 +280,6 @@
                 tInv += e.amount;
                 let p = (e.category==='gold') ? prices.gold : (e.category==='silver' ? prices.silver : prices.etf);
                 let val = (p > 0.01) ? (e.weight * p) : e.amount;
-
                 if(e.category==='gold'){ gVal+=val; gInv+=e.amount; }
                 else if(e.category==='silver'){ sVal+=val; sInv+=e.amount; }
                 else { eVal+=val; eInv+=e.amount; }
@@ -314,9 +297,9 @@
             $('totalPL').innerText = (pl>=0 && !privacyMode ? '+ ' : '') + pFmt(pl);
             $('totalPLPct').innerText = (tInv > 0 ? ((pl/tInv)*100).toFixed(2) : '0') + "%";
             $('totalPLPct').className = "text-sm font-black " + (pl>=0 ? "text-green-500" : "text-red-500");
-
             $('investedRow').style.display = privacyMode ? 'none' : 'block';
 
+            // Verteilung
             const gPct = tVal > 0 ? (gVal/tVal)*100 : 0;
             const sPct = tVal > 0 ? (sVal/tVal)*100 : 0;
             const ePct = tVal > 0 ? (eVal/tVal)*100 : 0;
@@ -325,7 +308,7 @@
             $('barEtf').style.width = ePct + "%";
             $('distLabel').innerText = `G ${gPct.toFixed(0)}% · S ${sPct.toFixed(0)}% · E ${ePct.toFixed(0)}%`;
 
-            // Gold Card
+            // Karten
             $('goldVal').innerText = pFmt(gVal, true, 0);
             $('goldInv').innerText = pFmt(gInv, true, 0);
             $('goldMarketRow').innerText = pFmt(prices.gold, true, 2);
@@ -333,7 +316,6 @@
             $('goldPL').innerText = (gVal-gInv>=0?'+':'') + gP + "%";
             $('goldPL').className = "text-[10px] font-bold " + (gVal-gInv>=0 ? "text-green-500" : "text-red-500");
 
-            // Silver Card
             $('silverVal').innerText = pFmt(sVal, true, 0);
             $('silverInv').innerText = pFmt(sInv, true, 0);
             $('silverMarketRow').innerText = pFmt(prices.silver, true, 2);
@@ -341,7 +323,6 @@
             $('silverPL').innerText = (sVal-sInv>=0?'+':'') + sP + "%";
             $('silverPL').className = "text-[10px] font-bold " + (sVal-sInv>=0 ? "text-green-500" : "text-red-500");
 
-            // ETF Card
             $('etfVal').innerText = pFmt(eVal, true, 0);
             $('etfInv').innerText = pFmt(eInv, true, 0);
             $('etfMarketRow').innerText = pFmt(prices.etf, true, 2);
@@ -357,14 +338,13 @@
             if(!($('viewHistory').classList.contains('hidden'))) openHistory($('histTitle').innerText.toLowerCase());
         }
 
-        // --- HISTORY (KORREKTUR: JEDER EINTRAG ZEIGT SEINEN EIGENEN PREIS) ---
+        // --- HISTORY ---
         function openHistory(cat) {
             $('viewHistory').classList.remove('hidden');
             $('histTitle').innerText = cat.toUpperCase();
             const list = $('historyItems'); list.innerHTML = '';
             const filtered = entries.filter(e => e.category === cat).sort((a,b) => new Date(b.date) - new Date(a.date));
             let cInv = filtered.reduce((acc, curr) => acc + curr.amount, 0);
-            
             $('histSummary').innerText = privacyMode ? "Investiert: ••••" : `Investiert: ${cInv.toLocaleString('de-DE')} € | ${filtered.length} Käufe`;
             
             filtered.forEach(e => {
@@ -372,32 +352,16 @@
                 let curVal = (p > 0.01) ? e.weight * p : e.amount;
                 let pl = curVal - e.amount;
                 const plP = e.amount > 0 ? (pl/e.amount)*100 : 0;
-
                 const div = document.createElement('div');
                 div.className = "bg-[#111] p-6 rounded-[28px] border border-[#222] flex justify-between items-center active:scale-95 transition-all";
                 div.onclick = () => openModal(e.id);
-                
-                // JEDER EINTRAG ZEIGT SEINEN EIGENEN KAUFPREIS (e.amount)
                 const valTxt = privacyMode ? "••••" : curVal.toLocaleString('de-DE', {minimumFractionDigits:2}) + " €";
                 const invTxt = privacyMode ? "••••" : e.amount.toLocaleString('de-DE', {minimumFractionDigits:0}) + " €";
-
-                div.innerHTML = `
-                    <div>
-                        <div class="text-sm font-black text-white mb-1 uppercase tracking-wider">${e.product}</div>
-                        <div class="text-[9px] text-gray-500 font-bold uppercase">${new Date(e.date).toLocaleDateString()} • ${e.weight.toFixed(3)} ${e.category==='etf'?'Stk':'g'}</div>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-base font-black ${pl>=0 ? 'text-green-500' : 'text-red-500'}">${valTxt}</div>
-                        <div class="text-[9px] font-bold text-gray-600 uppercase tracking-widest ${privacyMode?'hidden':'block'}">
-                            Bezahlt: ${invTxt} (${(pl>=0?'+':'') + plP.toFixed(1) + "%"})
-                        </div>
-                    </div>
-                `;
+                div.innerHTML = `<div><div class="text-sm font-black text-white mb-1 uppercase tracking-wider">${e.product}</div><div class="text-[9px] text-gray-500 font-bold uppercase">${new Date(e.date).toLocaleDateString()} • ${e.weight.toFixed(3)} ${e.category==='etf'?'Stk':'g'}</div></div><div class="text-right"><div class="text-base font-black ${pl>=0 ? 'text-green-500' : 'text-red-500'}">${valTxt}</div><div class="text-[9px] font-bold text-gray-600 uppercase tracking-widest ${privacyMode?'hidden':'block'}">Bezahlt: ${invTxt} (${(pl>=0?'+':'') + plP.toFixed(1) + "%"})</div></div>`;
                 list.appendChild(div);
             });
         }
 
-        // --- MODALS ---
         function openModal(id = null) {
             editId = id; $('entryModal').classList.remove('hidden');
             if(id) {
@@ -414,9 +378,8 @@
         async function saveEntry() {
             const btn = $('btnSave'); const cat = $('inpCat').value; const amt = parseFloat($('inpAmt').value); const date = $('inpDate').value;
             if(!amt || !date) return alert("Daten unvollständig!");
-            btn.innerText = "Berechne..."; btn.disabled = true;
+            btn.innerText = "Speichere..."; btn.disabled = true;
             let weight = parseFloat($('inpWgt').value);
-            
             if(cat === 'etf' && (!weight || weight === 0)) {
                 const ts = Math.floor(new Date(date).getTime() / 1000);
                 try {
@@ -425,10 +388,9 @@
                     weight = amt / j.chart.result[0].indicators.quote[0].close[0];
                 } catch(e) { weight = parseFloat(prompt("Kurs fehlt. Stückzahl?", "0")) || 0; }
             }
-
             const item = { id: editId || Date.now(), category: cat, product: $('inpProd').value || cat.toUpperCase(), amount: amt, weight: weight || 0, date: date, location: $('inpLoc').value };
             if(editId) entries = entries.map(x => x.id === editId ? item : x); else entries.unshift(item);
-            localStorage.setItem('port_v33_data', JSON.stringify(entries));
+            localStorage.setItem('port_v34_data', JSON.stringify(entries));
             btn.innerText = "Speichern"; btn.disabled = false; closeModal(); render();
             if(!($('viewHistory').classList.contains('hidden'))) openHistory(cat);
         }
@@ -441,22 +403,17 @@
             const r = new FileReader(); r.onload = e => {
                 const data = JSON.parse(e.target.result);
                 entries = Array.isArray(data) ? data : (data.entries || []);
-                localStorage.setItem('port_v33_data', JSON.stringify(entries)); location.reload();
+                localStorage.setItem('port_v34_data', JSON.stringify(entries)); location.reload();
             }; r.readAsText(el.files[0]);
         }
-
         function closeHistory() { $('viewHistory').classList.add('hidden'); }
         function closeModal() { $('entryModal').classList.add('hidden'); editId = null; }
         function openSettings() { $('settingsModal').classList.remove('hidden'); $('settingsModal').classList.add('flex'); }
         function closeSettings() { $('settingsModal').classList.add('hidden'); $('settingsModal').classList.remove('flex'); }
-        function updateModalUI() { 
-            const cat = $('inpCat').value;
-            $('weightBox').style.display = (cat === 'etf' && !editId) ? 'none' : 'block'; 
-            $('lblWeight').innerText = cat === 'etf' ? "Anteile (Stück)" : "Menge / Gramm";
-        }
-        function deleteEntry() { if(confirm("Löschen?")) { entries = entries.filter(x => x.id !== editId); localStorage.setItem('port_v33_data', JSON.stringify(entries)); closeModal(); closeHistory(); render(); } }
+        function updateModalUI() { const cat = $('inpCat').value; $('weightBox').style.display = (cat === 'etf' && !editId) ? 'none' : 'block'; $('lblWeight').innerText = cat === 'etf' ? "Anteile (Stück)" : "Menge / Gramm"; }
+        function deleteEntry() { if(confirm("Löschen?")) { entries = entries.filter(x => x.id !== editId); localStorage.setItem('port_v34_data', JSON.stringify(entries)); closeModal(); closeHistory(); render(); } }
 
-        // --- START ---
+        // START
         render();
         forceRefresh();
     </script>
